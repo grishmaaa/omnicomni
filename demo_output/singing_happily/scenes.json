@@ -1,0 +1,20 @@
+[
+  {
+    "scene_number": 1,
+    "speaker": "Narrator",
+    "text": "Our story begins with an exploration of singing happily.",
+    "emotion": "neutral"
+  },
+  {
+    "scene_number": 2,
+    "speaker": "Expert",
+    "text": "The fascinating thing about singing happily is how it connects to so many aspects of our world.",
+    "emotion": "excited"
+  },
+  {
+    "scene_number": 3,
+    "speaker": "Narrator",
+    "text": "And that's the story of singing happily. Thank you for listening.",
+    "emotion": "neutral"
+  }
+]

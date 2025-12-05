@@ -1,0 +1,26 @@
+[
+  {
+    "scene_number": 1,
+    "speaker": "Narrator",
+    "text": "Deep in space, a mysterious signal was detected by Earth's most powerful telescopes.",
+    "emotion": "mysterious"
+  },
+  {
+    "scene_number": 2,
+    "speaker": "Dr. Sarah Chen",
+    "text": "This is incredible! The pattern repeats every 47 seconds. It's definitely artificial!",
+    "emotion": "excited"
+  },
+  {
+    "scene_number": 3,
+    "speaker": "Commander Hayes",
+    "text": "Alert the international space council immediately. This changes everything we know.",
+    "emotion": "serious"
+  },
+  {
+    "scene_number": 4,
+    "speaker": "Narrator",
+    "text": "As the world watched, humanity prepared to answer the call from the stars.",
+    "emotion": "dramatic"
+  }
+]

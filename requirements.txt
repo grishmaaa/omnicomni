@@ -1,0 +1,5 @@
+transformers>=4.35.0
+bitsandbytes>=0.41.0
+accelerate>=0.24.0
+edge-tts>=6.1.0
+torch>=2.0.0
