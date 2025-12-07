@@ -1,279 +1,207 @@
-# Audio Scene Generation Pipeline
+# 🎬 OmniComni - AI Audio Scene Generator
 
-A complete AI-powered pipeline that generates audio dramas from topics using Llama-3.2-3B for scene generation and edge-tts for text-to-speech synthesis.
+Generate engaging audio dramas from any topic using AI scene generation and text-to-speech synthesis.
 
-## Features
+## ✨ Features
 
-- 🤖 **AI Scene Generation**: Uses Llama-3.2-3B with 4-bit quantization for efficient scene creation
-- 🎭 **Director Prompt**: Structured prompting for consistent JSON scene output
-- 🔊 **Text-to-Speech**: Multiple voices with emotion-based voice selection
-- 📁 **Organized Output**: Timestamped project folders with comprehensive metadata
-- 🎯 **Proper Naming**: Consistent file naming conventions for easy management
-- 🚀 **Easy to Use**: CLI and interactive modes
+- 🤖 **AI Scene Generation**: Uses Llama-3.2-3B-Instruct for creative, topic-relevant scenes
+- 🎭 **Smart Voice Selection**: Automatically selects voices based on emotion and character
+- 🎵 **High-Quality Audio**: Multiple natural voices via Microsoft Edge TTS
+- 📁 **Organized Output**: Timestamped projects with scenes, audio, and metadata
+- 🚀 **Multi-GPU Support**: Efficiently uses 4-bit quantization and multi-GPU setups
 
-## Installation
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
-pip install transformers bitsandbytes accelerate edge-tts torch
+pip install -r requirements.txt
 ```
 
-**Note**: You'll need a GPU with CUDA support for optimal performance. The model uses 4-bit quantization to reduce memory requirements.
-
-## Quick Start
-
-### Interactive Mode
+### Authentication
 
 ```bash
-python pipeline.py
+# Login to HuggingFace (required for Llama models)
+huggingface-cli login
+
+# Request model access at:
+# https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct
 ```
 
-Then enter your topic when prompted.
-
-### Command Line Mode
+### Generate Your First Audio Drama
 
 ```bash
-python pipeline.py "The discovery of a mysterious ancient artifact"
+python main.py "A mysterious signal from deep space"
+```
+
+That's it! Your audio scenes will be in `output/TIMESTAMP_topic/`
+
+## 📖 Usage
+
+### Basic
+
+```bash
+python main.py "Your topic here"
 ```
 
 ### Advanced Options
 
 ```bash
-# Custom output directory
-python pipeline.py "A day in the life of an astronaut on Mars" --output my_projects
+# Generate 7 scenes instead of default 5
+python main.py "Ancient mysteries of Egypt" --scenes 7
 
-# Don't save scenes.json
-python pipeline.py "The last library on Earth" --no-save-scenes
+# Use custom output directory
+python main.py "Space exploration" --output my_projects
+
+# Show debug information
+python main.py "Detective story" --verbose
+
+# Generate scenes only (no audio)
+python main.py "Your topic" --no-audio
 ```
 
-## How It Works
+### Full Options
 
-### 1. Scene Generation (`scene_generator.py`)
+```bash
+python main.py --help
+```
 
-- Loads Llama-3.2-3B with 4-bit quantization
-- Uses a carefully crafted "Director Prompt" to generate structured JSON scenes
-- Each scene includes:
-  - `scene_number`: Scene order (integer)
-  - `speaker`: Character or narrator name
-  - `text`: Dialogue or narration (1-3 sentences)
-  - `emotion`: Emotional tone (neutral, excited, serious, mysterious, dramatic)
-
-### 2. Audio Generation (`audio_generator.py`)
-
-- Converts each scene to audio using edge-tts
-- Selects appropriate voices based on emotion and speaker
-- Generates files with naming convention: `{topic}_scene{XX}_{speaker}_{emotion}.mp3`
-- Organizes files in topic-specific folders
-
-### 3. Pipeline Orchestration (`pipeline.py`)
-
-- Coordinates the entire workflow
-- Creates timestamped project folders
-- Generates comprehensive metadata and documentation
-- Provides progress feedback
-
-## Output Structure
+## 📁 Output Structure
 
 Each run creates a timestamped project folder:
 
 ```
 output/
-└── 20251130_143022_ancient_artifact/
-    ├── scenes.json              # Scene definitions
+└── 20251207_143022_mysterious_signal/
+    ├── scenes.json              # AI-generated scenes
     ├── summary.json             # Complete metadata
     ├── README.md               # Human-readable summary
-    └── audio/                  # Audio files
-        ├── ancient_artifact_scene01_narrator_mysterious.mp3
-        ├── ancient_artifact_scene02_dr_sarah_chen_excited.mp3
-        └── ancient_artifact_scene03_professor_james_serious.mp3
+    └── mysterious_signal/       # Audio files
+        ├── mysterious_signal_scene01_narrator_mysterious.mp3
+        ├── mysterious_signal_scene02_dr_patel_excited.mp3
+        └── ...
 ```
 
-## File Naming Convention
+## 🎨 Available Emotions & Voices
 
-Audio files follow this pattern:
+| Emotion | Voice | Character Type |
+|---------|-------|----------------|
+| `mysterious` | Guy (male) | Deep, enigmatic |
+| `excited` | Jenny (female) | Enthusiastic, energetic |
+| `serious` | Ryan (male, British) | Authoritative, formal |
+| `dramatic` | Aria (female) | Expressive, theatrical |
+| `neutral` | Christopher (male) | Clear, balanced |
+
+## ⚙️ Configuration
+
+Edit `config.py` to customize:
+
+- Model selection
+- Number of scenes
+- Temperature and creativity settings
+- Voice mappings
+- Output directories
+
+## 🖥️ Multi-GPU Usage
+
+The pipeline automatically uses all available GPUs with `device_map="auto"`.
+
+### Run Multiple Topics in Parallel
+
+```bash
+# Run 4 different topics simultaneously
+CUDA_VISIBLE_DEVICES=0 python main.py "Topic 1" &
+CUDA_VISIBLE_DEVICES=1 python main.py "Topic 2" &
+CUDA_VISIBLE_DEVICES=2 python main.py "Topic 3" &
+CUDA_VISIBLE_DEVICES=3 python main.py "Topic 4" &
+wait
 ```
-{topic_slug}_scene{number:02d}_{speaker}_{emotion}.mp3
+
+## 📚 Project Structure
+
+```
+omnicomni/
+├── src/
+│   ├── scene_generator.py    # AI scene generation
+│   ├── audio_generator.py    # Audio synthesis
+│   └── utils.py              # Helper functions
+├── main.py                   # Main entry point
+├── config.py                 # Configuration
+├── requirements.txt          # Dependencies
+└── output/                   # Generated projects
 ```
 
-Example:
+## 🛠️ Development
+
+### Running Tests
+
+```bash
+# Test scene generation only
+python -c "from src.scene_generator import SceneGenerator; sg = SceneGenerator(); scenes = sg.generate_scenes('Test topic'); print(scenes)"
+
+# Test audio generation only
+python -c "from src.audio_generator import AudioGenerator; ag = AudioGenerator(); ag.generate_audio_sync([{'scene_number':1,'speaker':'Test','text':'Hello world','emotion':'neutral'}], 'test')"
 ```
-ancient_artifact_scene01_narrator_mysterious.mp3
-```
 
-## Components
-
-### `scene_generator.py`
-
-Handles AI-powered scene generation:
+### Module Usage
 
 ```python
-from scene_generator import SceneGenerator
+from src.scene_generator import SceneGenerator
+from src.audio_generator import AudioGenerator
 
+# Generate scenes
 generator = SceneGenerator()
-scenes = generator.generate_scenes("Your topic here")
-generator.save_scenes(scenes, "output.json")
+scenes = generator.generate_scenes("Your topic", num_scenes=5)
+
+# Generate audio
+audio_gen = AudioGenerator(output_dir="my_output")
+audio_files = audio_gen.generate_audio_sync(scenes, "my_topic")
 ```
 
-### `audio_generator.py`
+## 💡 Tips
 
-Handles text-to-speech conversion:
+1. **Be specific with topics** - More detail = better scenes
+2. **Adjust temperature** - Higher (0.8-0.9) = more creative, Lower (0.5-0.6) = more focused
+3. **Try different scene counts** - 3-7 works well for most topics
+4. **Use verbose mode** - See what the AI generates for debugging
 
-```python
-from audio_generator import AudioGenerator
+## 🐛 Troubleshooting
 
-generator = AudioGenerator(output_dir="audio_output")
-audio_files = generator.generate_audio_sync(scenes, topic="my_topic")
+### Model Access Denied
+
+Visit https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct and click "Request Access"
+
+### CUDA Out of Memory
+
+The model uses 4-bit quantization (~4GB). If still running out of memory:
+- Close other GPU applications
+- Use a smaller batch size
+
+### Generic Fallback Scenes
+
+This means the AI couldn't generate valid JSON. Enable verbose mode:
+```bash
+python main.py "Your topic" --verbose
 ```
 
-### `pipeline.py`
+This will show what the model generated so you can debug.
 
-Complete end-to-end pipeline:
-
-```python
-from pipeline import AudioScenePipeline
-
-pipeline = AudioScenePipeline(output_base_dir="output")
-results = pipeline.run("Your topic here")
-```
-
-## Voice Selection
-
-The system automatically selects voices based on emotion:
-
-| Emotion     | Voice                    |
-|-------------|--------------------------|
-| neutral     | en-US-ChristopherNeural  |
-| excited     | en-US-JennyNeural        |
-| serious     | en-GB-RyanNeural         |
-| mysterious  | en-US-GuyNeural          |
-| dramatic    | en-US-AriaNeural         |
-
-## Director Prompt
-
-The director prompt is designed to generate consistent, high-quality scenes:
-
-- Acts as a creative director for audio storytelling
-- Requests 3-5 scenes with narrative arc
-- Specifies exact JSON structure
-- Emphasizes concise, engaging content
-- Ensures audio-suitable formatting
-
-## Debugging
-
-### Common Issues
-
-1. **CUDA Out of Memory**: The model uses 4-bit quantization, but if you still run out of memory, try:
-   - Closing other GPU applications
-   - Reducing `max_new_tokens` in scene generation
-
-2. **JSON Parsing Errors**: The system includes fallback scenes if generation fails
-   - Check the generated text output
-   - Adjust temperature parameter for more consistent output
-
-3. **Audio Generation Fails**: 
-   - Ensure edge-tts is properly installed
-   - Check internet connection (edge-tts requires online access)
-
-### Verbose Output
-
-All scripts include detailed progress output showing:
-- Model loading status
-- Scene generation progress
-- Audio file creation
-- File paths and statistics
-
-## Customization
-
-### Modify Voice Selection
-
-Edit `audio_generator.py`:
-
-```python
-self.voice_map = {
-    "neutral": "en-US-ChristopherNeural",
-    "excited": "en-US-JennyNeural",
-    # Add your custom mappings
-}
-```
-
-### Adjust Scene Generation
-
-Edit `scene_generator.py`:
-
-```python
-scenes = generator.generate_scenes(
-    topic,
-    max_new_tokens=1024,  # Increase for longer scenes
-    temperature=0.7        # Higher = more creative
-)
-```
-
-### Change Output Structure
-
-Edit `pipeline.py` to customize folder structure and metadata.
-
-## Requirements
-
-- Python 3.8+
-- CUDA-capable GPU (recommended)
-- ~4GB GPU memory (with 4-bit quantization)
-- Internet connection (for edge-tts)
-
-## License
+## 📝 License
 
 This project uses:
-- Llama-3.2-3B (Meta's license)
+- Llama-3.2-3B-Instruct (Meta's license)
 - edge-tts (MIT License)
-- transformers, bitsandbytes, accelerate (Apache 2.0)
+- transformers, torch (Apache 2.0)
 
-## Examples
+## 🤝 Contributing
 
-### Example 1: Mystery Story
-```bash
-python pipeline.py "The discovery of a mysterious ancient artifact in the Amazon"
-```
-
-### Example 2: Sci-Fi
-```bash
-python pipeline.py "First contact with an alien civilization"
-```
-
-### Example 3: Educational
-```bash
-python pipeline.py "How photosynthesis works, explained for children"
-```
-
-## Tips
-
-1. **Be Specific**: More detailed topics generate better scenes
-2. **Check Output**: Review `scenes.json` to see what was generated
-3. **Iterate**: Run multiple times with different topics to see variety
-4. **Organize**: Use the `--output` flag to organize different projects
-
-## Troubleshooting
-
-### Model Download
-
-First run will download Llama-3.2-3B (~2GB). This may take time depending on your connection.
-
-### Hugging Face Authentication
-
-If you need access to gated models:
-
-```bash
-huggingface-cli login
-```
-
-## Contributing
-
-Feel free to customize and extend:
-- Add more voice options
-- Implement different scene structures
-- Add background music
-- Create video from audio + images
-- Add multi-language support
+Contributions welcome! Feel free to:
+- Add new voice options
+- Improve prompts
+- Add new features
+- Fix bugs
 
 ---
 
-**Created by**: Audio Scene Pipeline
-**Version**: 1.0.0
-# omnicomni
+**Version**: 1.0.0  
+**Created by**: OmniComni Team

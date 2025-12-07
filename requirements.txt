@@ -1,5 +1,13 @@
-transformers>=4.35.0
-bitsandbytes>=0.41.0
+# Core dependencies
+transformers>=4.57.0
+torch>=2.3.0
 accelerate>=0.24.0
+
+# Quantization (for memory efficiency)
+bitsandbytes>=0.41.0
+
+# Text-to-speech
 edge-tts>=6.1.0
-torch>=2.0.0
+
+# Optional: For better performance
+# huggingface-hub[hf_xet]  # Faster model downloads
