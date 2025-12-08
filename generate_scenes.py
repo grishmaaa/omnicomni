@@ -61,27 +61,49 @@ OUTPUT FORMAT: Pure JSON only. Begin with [ and end with ]"""
 def clean_json_output(raw_text: str) -> str:
     """
     Aggressively clean LLM output to extract valid JSON
-    Handles common failure modes: markdown blocks, conversational text, missing commas
+    Handles: markdown blocks, conversational text, missing commas, multiple arrays
     """
     # Remove markdown code blocks
     text = re.sub(r'```json\s*', '', raw_text)
     text = re.sub(r'```\s*', '', text)
     
-    # Find first [ and last ]
-    start_idx = text.find('[')
-    end_idx = text.rfind(']')
+    # Find all complete JSON arrays: [ ... ]
+    # Use non-greedy match to get separate arrays
+    array_pattern = r'\[[\s\S]*?\]'
+    arrays = re.findall(array_pattern, text)
     
-    if start_idx == -1 or end_idx == -1 or start_idx >= end_idx:
+    if not arrays:
         raise ValueError("No valid JSON array found in output")
     
-    # Extract just the JSON
-    json_str = text[start_idx:end_idx + 1]
+    # If multiple arrays found, merge them
+    if len(arrays) > 1:
+        print(f"⚠️  Found {len(arrays)} separate arrays, merging...")
+        
+        # Parse and combine all objects
+        all_objects = []
+        for arr_str in arrays:
+            try:
+                # Fix common errors first
+                fixed = re.sub(r'}\s*{', '}, {', arr_str)
+                fixed = re.sub(r',\s*]', ']', fixed)
+                fixed = re.sub(r',\s*}', '}', fixed)
+                
+                arr = json.loads(fixed)
+                if isinstance(arr, list):
+                    all_objects.extend(arr)
+            except:
+                continue
+        
+        if all_objects:
+            return json.dumps(all_objects)
+        else:
+            raise ValueError("Could not parse any valid arrays")
+    
+    # Single array - clean it
+    json_str = arrays[0]
     
     # Fix common LLM errors:
-    # 1. Missing comma between objects: } { -> }, {
     json_str = re.sub(r'}\s*{', '}, {', json_str)
-    
-    # 2. Trailing commas before closing bracket
     json_str = re.sub(r',\s*]', ']', json_str)
     json_str = re.sub(r',\s*}', '}', json_str)
     
