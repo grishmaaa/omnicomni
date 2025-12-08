@@ -1,13 +1,41 @@
-# Core dependencies
+# Core Dependencies
 transformers>=4.57.0
 torch>=2.3.0
 accelerate>=0.24.0
-
-# Quantization (for memory efficiency)
-bitsandbytes>=0.41.0
-
-# Text-to-speech
 edge-tts>=6.1.0
+scipy
+huggingface_hub
 
-# Optional: For better performance
-# huggingface-hub[hf_xet]  # Faster model downloads
+# Quantization (Platform-specific)
+# Linux/MacOS: Install standard bitsandbytes
+# Windows: Use bitsandbytes-windows instead
+bitsandbytes>=0.41.0; sys_platform != 'win32'
+
+# ============================================================================
+# IMPORTANT: PyTorch CUDA Installation
+# ============================================================================
+# The above will install CPU-only PyTorch by default!
+# 
+# For GPU support, install PyTorch with CUDA FIRST:
+#
+# CUDA 11.8:
+#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+#
+# CUDA 12.1:
+#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+#
+# Then install other requirements:
+#   pip install -r requirements.txt
+#
+# ============================================================================
+# Windows Users: bitsandbytes
+# ============================================================================
+# Standard bitsandbytes doesn't work on Windows.
+#
+# Instead, install:
+#   pip install bitsandbytes-windows
+#
+# Or use pre-compiled wheel:
+#   pip install https://github.com/jllllll/bitsandbytes-windows-webui/releases/download/wheels/bitsandbytes-0.41.1-py3-none-win_amd64.whl
+#
+# ============================================================================
