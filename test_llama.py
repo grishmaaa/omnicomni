@@ -120,10 +120,11 @@ def load_model(device_type, vram_gb):
                 bnb_4bit_quant_type="nf4"
             )
             
+            # Force model to GPU 0 to avoid multi-GPU device mismatch
             model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 quantization_config=quantization_config,
-                device_map="auto",
+                device_map={"":0},  # Force GPU 0 instead of "auto"
                 torch_dtype=torch.float16,
                 low_cpu_mem_usage=True
             )
@@ -195,8 +196,10 @@ def run_inference(tokenizer, model, device_type):
     # Prepare input
     inputs = tokenizer(prompt, return_tensors="pt")
     
+    # Move inputs to the same device as the model
     if device_type == "cuda":
-        inputs = inputs.to("cuda")
+        # Use model.device to handle multi-GPU setups
+        inputs = inputs.to(model.device)
     
     # Generate
     print("\n⚙️  Generating response...")

@@ -327,7 +327,8 @@ def test_16_historical_event(suite):
     
     historical = "The Apollo 11 moon landing in 1969 and Neil Armstrong's first steps on the lunar surface"
     
-    success, output = suite.run_pipeline(historical, scenes=6)
+    # Extended timeout for 6 scenes
+    success, output = suite.run_pipeline(historical, scenes=6, timeout=400)
     vram = suite.get_vram_usage()
     
     if success:
