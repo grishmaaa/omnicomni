@@ -113,10 +113,8 @@ class VideoGenerator:
             else:
                 self.pipeline.to(self.device)
             
-            # Enable VAE slicing
-            # Splits VAE decode into chunks to reduce peak memory
-            self.logger.info("Enabling VAE slicing")
-            self.pipeline.enable_vae_slicing()
+            # Note: SVD doesn't support enable_vae_slicing()
+            # VAE memory is managed via decode_chunk_size parameter in generate()
             
             vram = torch.cuda.memory_allocated() / 1e9 if self.device == "cuda" else 0
             self.logger.info(f"✅ SVD pipeline loaded ({vram:.2f}GB VRAM)")
