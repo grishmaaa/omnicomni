@@ -61,7 +61,7 @@ OUTPUT FORMAT: Pure JSON only. Begin with [ and end with ]"""
 def clean_json_output(raw_text: str) -> str:
     """
     Aggressively clean LLM output to extract valid JSON
-    Handles common failure modes: markdown blocks, conversational text
+    Handles common failure modes: markdown blocks, conversational text, missing commas
     """
     # Remove markdown code blocks
     text = re.sub(r'```json\s*', '', raw_text)
@@ -76,6 +76,14 @@ def clean_json_output(raw_text: str) -> str:
     
     # Extract just the JSON
     json_str = text[start_idx:end_idx + 1]
+    
+    # Fix common LLM errors:
+    # 1. Missing comma between objects: } { -> }, {
+    json_str = re.sub(r'}\s*{', '}, {', json_str)
+    
+    # 2. Trailing commas before closing bracket
+    json_str = re.sub(r',\s*]', ']', json_str)
+    json_str = re.sub(r',\s*}', '}', json_str)
     
     return json_str
 
