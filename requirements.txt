@@ -1,4 +1,4 @@
-# Updated requirements with enterprise dependencies
+# Updated requirements with Flux dependencies
 
 # Core ML
 torch>=2.0.0
@@ -6,6 +6,11 @@ transformers>=4.30.0
 accelerate>=0.20.0
 bitsandbytes>=0.41.0
 scipy>=1.10.0
+
+# Image Generation (Task 6)
+diffusers>=0.27.0
+safetensors>=0.4.0
+Pillow>=10.0.0
 
 # Audio generation
 edge-tts>=6.1.0
@@ -28,13 +33,16 @@ ruff>=0.1.0
 # Installation Instructions:
 # 
 # 1. Install CUDA-enabled PyTorch first:
-#    pip install torch --index-url https://download.pytorch.org/whl/cu118
+#    pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 #
-# 2. Install remaining dependencies:
+# 2. Install Flux dependencies:
+#    pip install diffusers safetensors Pillow accelerate
+#
+# 3. Install remaining dependencies:
 #    pip install -r requirements.txt
 #
-# 3. Windows users - install bitsandbytes wrapper:
+# 4. Windows users - install bitsandbytes wrapper:
 #    pip install bitsandbytes-windows
 #
-# 4. Copy .env.example to .env and configure:
+# 5. Copy .env.example to .env and configure:
 #    cp .env.example .env
