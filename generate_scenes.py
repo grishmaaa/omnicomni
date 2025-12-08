@@ -248,11 +248,15 @@ def generate_scenes(
     # Decode
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     
-    # Extract just the assistant's response
-    assistant_start = generated_text.rfind("[")
-    if assistant_start != -1:
-        raw_output = generated_text[assistant_start:]
+    # Extract the assistant's response
+    # Look for the assistant marker to get everything after the prompt
+    assistant_marker = "<|start_header_id|>assistant<|end_header_id|>"
+    if assistant_marker in generated_text:
+        # Get everything after the assistant marker
+        assistant_start = generated_text.find(assistant_marker) + len(assistant_marker)
+        raw_output = generated_text[assistant_start:].strip()
     else:
+        # Fallback: use full text, clean_json_output will extract the array
         raw_output = generated_text
     
     print("✅ Generation complete\n")
