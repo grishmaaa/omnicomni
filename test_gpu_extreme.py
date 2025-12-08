@@ -52,7 +52,8 @@ class GPUTestSuite:
     
     def run_pipeline(self, topic, scenes=5, timeout=300):
         """Run pipeline and capture result"""
-        cmd = ["python", "main.py", topic, "--scenes", str(scenes)]
+        # Pass topic as separate list item to avoid shell escaping issues
+        cmd = ["python", "main.py"] + [topic, "--scenes", str(scenes)]
         
         try:
             result = subprocess.run(
@@ -241,9 +242,11 @@ def test_11_memory_stress(suite):
     torch.cuda.empty_cache()
     initial_vram = suite.get_vram_usage()
     
+    # Increased timeout for large scene count
     success, output = suite.run_pipeline(
         "A complex epic saga spanning multiple generations", 
-        scenes=10
+        scenes=10,
+        timeout=600  # 10 minutes for stress test
     )
     
     peak_vram = suite.get_vram_usage()
