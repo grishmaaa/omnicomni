@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 from typing import List, Dict
 
-from src.image.flux_client import FluxImageGenerator
+from src.image.sd_client import SDImageGenerator as FluxImageGenerator
 
 
 # ============================================================================

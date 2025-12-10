@@ -1,4 +1,4 @@
-"""Package initialization for src.core with GPU utilities"""
+"""Package initialization for src.core with FFmpeg"""
 
 from src.core.config import settings
 from src.core.models import SceneModel, StoryboardModel, validate_llm_output
@@ -18,6 +18,7 @@ from src.core.gpu_manager import (
     managed_execution,
     VRAMContext
 )
+from src.core.ffmpeg_service import FFmpegService
 
 __all__ = [
     # Config
@@ -40,4 +41,6 @@ __all__ = [
     'check_vram_availability',
     'managed_execution',
     'VRAMContext',
+    # FFmpeg
+    'FFmpegService',
 ]
