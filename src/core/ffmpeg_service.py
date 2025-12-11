@@ -143,10 +143,51 @@ class FFmpegService:
             self.logger.debug(f"Metadata for {file_path.name}: {metadata}")
             return metadata
             
+            self.logger.debug(f"Metadata for {file_path.name}: {metadata}")
+            return metadata
+            
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"FFprobe failed: {e.stderr}")
         except json.JSONDecodeError as e:
             raise RuntimeError(f"Failed to parse ffprobe output: {e}")
+
+    def get_probe_info(self, file_path: Path) -> Dict:
+        """
+        Get full probe info (all streams)
+        
+        Args:
+            file_path: Path to media file
+            
+        Returns:
+            Dictionary with 'streams' and 'format'
+        """
+        if not file_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+            
+        cmd = [
+            self.ffprobe_path,
+            "-v", "error",
+            "-show_entries", "stream=index,codec_type,codec_name,channels,sample_rate,duration:format=duration,size",
+            "-of", "json",
+            str(file_path)
+        ]
+        
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            return json.loads(result.stdout)
+        except Exception as e:
+            raise RuntimeError(f"Probe failed: {e}")
+
+    def has_audio_stream(self, file_path: Path) -> bool:
+        """Check if file has an audio stream"""
+        try:
+            info = self.get_probe_info(file_path)
+            for stream in info.get('streams', []):
+                if stream.get('codec_type') == 'audio':
+                    return True
+            return False
+        except:
+            return False
     
     def extract_audio(
         self,

@@ -163,6 +163,21 @@ def concatenate_videos(
     if not clips:
         raise ValueError("No clips provided for concatenation")
     
+    # Pre-flight check: Ensure all clips have audio
+    # Critical: Filter complex requires all inputs to have [0:a] mapping
+    missing_audio = []
+    for clip in clips:
+        if not ffmpeg_service.has_audio_stream(clip):
+            missing_audio.append(clip.name)
+            logger.error(f"❌ Clip has NO audio stream: {clip.name}")
+            
+    if missing_audio:
+        raise RuntimeError(
+            f"Found {len(missing_audio)} clips without audio! "
+            "Concatenation requires audio for all inputs.\n"
+            "Please re-run: python merge_scenes.py --topic <topic> --no-skip"
+        )
+    
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     logger.info(f"\n🎬 Concatenating {len(clips)} clips...")
