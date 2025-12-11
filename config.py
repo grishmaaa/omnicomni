@@ -22,6 +22,10 @@ ALTERNATIVE_MODELS = [
 USE_4BIT_QUANTIZATION = True  # Save memory with 4-bit quantization
 MODEL_DEVICE_MAP = "auto"     # Automatically distribute across GPUs
 
+# Image/Video Models
+IMAGE_MODEL_ID = "black-forest-labs/FLUX.1-schnell"  # 2025 SOTA
+VIDEO_MODEL_ID = "stabilityai/stable-video-diffusion-img2vid-xt-1-1"
+
 # ============================================================================
 # GENERATION CONFIGURATION  
 # ============================================================================

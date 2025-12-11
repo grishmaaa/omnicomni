@@ -1,45 +1,43 @@
 """
-Stable Diffusion Image Generator (Lightweight Alternative)
-Uses SD 1.5 (~4GB) instead of Flux (~23GB)
+Flux.1 Image Generator (2025 State-of-the-Art)
+Uses Flux.1-schnell for photorealistic quality
 
-Drop-in replacement for FluxImageGenerator
+Replaces legacy SD 1.5 implementation
 """
 
 import logging
 from pathlib import Path
 from typing import Optional
 import torch
-from diffusers import StableDiffusionPipeline
+from diffusers import FluxPipeline
 
+# Default model from config
+DEFAULT_MODEL_ID = "black-forest-labs/FLUX.1-schnell"
 
-class SDImageGenerator:
+class FluxImageGenerator:
     """
-    Stable Diffusion 1.5 generator
+    Flux.1-schnell generator (2025 Standard)
     
-    Lightweight alternative to Flux (4GB vs 23GB)
-    Perfect for disk-constrained environments
-    
-    Example:
-        >>> generator = SDImageGenerator()
-        >>> image_path = generator.generate(
-        ...     prompt="Cyberpunk Tokyo street, neon lights",
-        ...     output_path=Path("scene_01.png")
-        ... )
+    Why Flux?
+    - Native 1024x1024 resolution
+    - Incredible prompt adherence
+    - Photorealistic lighting and textures
+    - Fast inference (4 steps)
     """
     
     def __init__(
         self,
-        model_id: str = "runwayml/stable-diffusion-v1-5",
+        model_id: str = DEFAULT_MODEL_ID,
         device: str = "cuda",
-        dtype: torch.dtype = torch.float16
+        dtype: torch.dtype = torch.bfloat16
     ):
         """
-        Initialize SD pipeline
+        Initialize Flux pipeline
         
         Args:
-            model_id: HuggingFace model (SD 1.5 by default)
+            model_id: HuggingFace model
             device: Device ("cuda" or "cpu")
-            dtype: Precision (float16 recommended for GPU)
+            dtype: Precision (bfloat16 recommended for Flux)
         """
         self.model_id = model_id
         self.device = device
@@ -47,41 +45,39 @@ class SDImageGenerator:
         self.pipeline = None
         
         self.logger = logging.getLogger(__name__)
-        self.logger.info(f"Initializing SD with {model_id}")
+        self.logger.info(f"Initializing Flux with {model_id}")
         
         self._load_model()
     
     def _load_model(self):
-        """Load SD pipeline"""
+        """Load Flux pipeline"""
         if self.pipeline is not None:
             return
         
         try:
-            self.logger.info(f"Loading SD pipeline (~4GB download)...")
+            self.logger.info(f"Loading Flux pipeline (this may take a moment)...")
             
             # Check device
             if self.device == "cuda" and not torch.cuda.is_available():
-                self.logger.warning("CUDA not available, using CPU")
+                self.logger.warning("CUDA not available, utilizing CPU (Very Slow)")
                 self.device = "cpu"
                 self.dtype = torch.float32
             
             # Load pipeline
-            self.pipeline = StableDiffusionPipeline.from_pretrained(
+            self.pipeline = FluxPipeline.from_pretrained(
                 self.model_id,
-                torch_dtype=self.dtype,
-                safety_checker=None,  # Disable for speed
-                requires_safety_checker=False
-            ).to(self.device)
+                torch_dtype=self.dtype
+            )
             
-            # Optimizations
+            # Memory optimizations
             if self.device == "cuda":
-                self.pipeline.enable_attention_slicing()
+                # Offload for 24GB VRAM support
+                self.pipeline.enable_model_cpu_offload()
             
-            vram = torch.cuda.memory_allocated() / 1e9 if self.device == "cuda" else 0
-            self.logger.info(f"✅ SD loaded ({vram:.2f}GB VRAM)")
+            self.logger.info(f"✅ Flux loaded and ready")
             
         except Exception as e:
-            self.logger.error(f"❌ Failed to load SD: {e}")
+            self.logger.error(f"❌ Failed to load Flux: {e}")
             raise
     
     def generate(
@@ -89,10 +85,10 @@ class SDImageGenerator:
         prompt: str,
         output_path: Path,
         seed: Optional[int] = None,
-        num_inference_steps: int = 30,
-        guidance_scale: float = 7.5,
-        width: int = 512,
-        height: int = 512
+        num_inference_steps: int = 4,  # Flux-schnell needs only 4 steps
+        guidance_scale: float = 0.0,   # Flux doesn't use CFG usually (or uses 3.5 internally)
+        width: int = 1024,
+        height: int = 1024
     ) -> Path:
         """
         Generate image from prompt
@@ -101,9 +97,8 @@ class SDImageGenerator:
             prompt: Text description
             output_path: Where to save
             seed: Random seed
-            num_inference_steps: Denoising steps (20-50 typical)
-            guidance_scale: CFG scale (7.5 default)
-            width: Image width (512 default for SD 1.5)
+            num_inference_steps: Denoising steps (4 for Schnell, 20 for Dev)
+            width: Image width (1024 default)
             height: Image height
             
         Returns:
@@ -116,18 +111,19 @@ class SDImageGenerator:
             # Set seed
             generator = None
             if seed is not None:
-                generator = torch.Generator(device=self.device).manual_seed(seed)
+                generator = torch.Generator("cpu").manual_seed(seed)
             
-            self.logger.info(f"Generating: {prompt[:60]}...")
+            self.logger.info(f"Generating (Flux-Schnell): {prompt[:60]}...")
             
             # Generate
             result = self.pipeline(
                 prompt=prompt,
                 num_inference_steps=num_inference_steps,
-                guidance_scale=guidance_scale,
+                guidance_scale=guidance_scale, # Unused for Schnell typically
                 width=width,
                 height=height,
-                generator=generator
+                generator=generator,
+                max_sequence_length=256 # Optimize for speed
             )
             
             image = result.images[0]
@@ -140,7 +136,7 @@ class SDImageGenerator:
             return output_path
             
         except torch.cuda.OutOfMemoryError:
-            self.logger.error("❌ CUDA OOM - try reducing image size")
+            self.logger.error("❌ CUDA OOM - Flux needs ~16GB VRAM. Ensure no other models are loaded.")
             raise
         except Exception as e:
             self.logger.error(f"❌ Generation failed: {e}")
@@ -155,5 +151,6 @@ class SDImageGenerator:
                 torch.cuda.empty_cache()
 
 
-# Alias for compatibility
-FluxImageGenerator = SDImageGenerator
+# Usage Alias
+SDImageGenerator = FluxImageGenerator
+

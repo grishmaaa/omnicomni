@@ -126,43 +126,43 @@ print_success "Llama model ready"
 du -sh "$HOME/.cache/huggingface" 2>/dev/null | awk '{print "Cache size: " $1}'
 
 # ============================================================================
-# STEP 3: Download Stable Diffusion (~4GB)
+# STEP 3: Download Flux.1-schnell (~17GB) - 2025 SOTA
 # ============================================================================
-print_header "Step 3: Downloading Stable Diffusion (~4GB)"
+print_header "Step 3: Downloading Flux.1-schnell (~17GB)"
 
-print_info "Testing SD download..."
-python3 << 'SD_TEST'
+print_warning "Flux requires significant disk space (~17GB)"
+print_info "Testing Flux download..."
+python3 << 'FLUX_TEST'
 import sys
 import torch
-from diffusers import StableDiffusionPipeline
+from diffusers import FluxPipeline
 
-print("Initializing Stable Diffusion 1.5...")
-model_id = "runwayml/stable-diffusion-v1-5"
+print("Initializing Flux.1-schnell...")
+model_id = "black-forest-labs/FLUX.1-schnell"
 
 try:
-    pipeline = StableDiffusionPipeline.from_pretrained(
+    pipeline = FluxPipeline.from_pretrained(
         model_id,
-        torch_dtype=torch.float16,
-        safety_checker=None,
-        requires_safety_checker=False
+        torch_dtype=torch.bfloat16
     )
     
-    if torch.cuda.is_available():
-        pipeline = pipeline.to("cuda")
+    # Save some VRAM by offloading
+    pipeline.enable_model_cpu_offload()
     
-    print("✅ SD model downloaded!")
+    print("✅ Flux model downloaded!")
     
 except Exception as e:
-    print(f"❌ SD download failed: {e}")
+    print(f"❌ Flux download failed: {e}")
     sys.exit(1)
-SD_TEST
+FLUX_TEST
 
 if [ $? -ne 0 ]; then
-    print_error "SD model download failed!"
+    print_error "Flux model download failed!"
+    print_warning "This is likely due to disk space or huggingface login."
     exit 1
 fi
 
-print_success "SD model ready"
+print_success "Flux model ready"
 du -sh "$HOME/.cache/huggingface" 2>/dev/null | awk '{print "Cache size: " $1}'
 
 # ============================================================================
