@@ -290,34 +290,49 @@ class ContentPipeline:
         self._load_model()
         
         # Create prompt
-        system_prompt = """You are a World-Class Film Director creating visual storyboards.
+        # Create prompt
+        system_prompt = """You are a Film Director creating a visual storyboard.
 
-YOUR TASK: Convert the given topic into a cinematic story with detailed visual scenes.
+CRITICAL: You must output scenes as JSON with STRICTLY SEPARATED visual fields.
 
-CRITICAL RULES:
-1. Output ONLY raw JSON. NO markdown formatting (no ```json), NO intro text, NO outro text.
-2. Start directly with [ and end with ]
-3. Each scene must be optimized for AI image generation (Stable Diffusion/Flux)
-
-JSON SCHEMA:
+Output Format (JSON Array):
 [
   {
     "scene_id": 1,
-    "visual_prompt": "highly detailed description here",
-    "audio_text": "Narration script (max 2 sentences)",
+    "visual_subject": "Specific character/object with detailed physical attributes",
+    "visual_action": "What they are doing (action verb + details)",
+    "background_environment": "Location, setting, atmospheric details",
+    "lighting": "Lighting conditions, time of day, mood lighting",
+    "camera_shot": "Camera angle, framing, lens choice",
+    "audio_text": "Narration script for TTS (what the audience hears)",
     "duration": 8
   }
 ]
 
-VISUAL PROMPT REQUIREMENTS:
-- Include: lighting, camera angle, art style, quality markers
-- Use keywords: "4k", "ultra detailed", "volumetric lighting", "cinematic"
-- Maintain consistent visual style
+Field Guidelines:
+1. visual_subject: Be SPECIFIC ("A weary detective in a rain-soaked trench coat" NOT "a detective")
+   - Include: Age, build, clothing, distinctive features
+   - Maintain consistency across scenes if same character
+
+2. visual_action: Focus on VERBS ("walking quickly", "examining a clue")
+   - Include body language, facial expressions
+
+3. background_environment: Set the scene ("narrow Tokyo alley with flickering neon signs")
+   - Include: Architecture, weather, ambient details
+
+4. lighting: Specify conditions ("golden hour sunlight", "moody neon")
+   - Include: Color temperature, shadows, reflections
+
+5. camera_shot: Use film terminology ("medium close-up", "wide establishing shot")
+   - Include: Angle (low/high), depth of field
+
+6. audio_text: Narration that complements visuals. Concise (1-2 sentences).
 
 CREATIVE CONSTRAINTS:
 - Create 4-6 scenes
 - Total duration: 30-45 seconds
 - Follow narrative arc: beginning, middle, end
+- STRICTLY separate visual fields
 
 OUTPUT FORMAT: Pure JSON only. Begin with [ and end with ]"""
         
