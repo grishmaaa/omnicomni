@@ -125,32 +125,50 @@ class VideoGenerator:
     
     def _prepare_image(self, image_path: Path) -> Image.Image:
         """
-        Load and resize image to SVD native resolution
+        Load and Smart Crop image to SVD native resolution
         
         Args:
             image_path: Path to input image
             
         Returns:
-            Resized PIL Image
+            Center-cropped and resized PIL Image
             
-        Technical reason: SVD is trained on 1024x576. Other resolutions
-        cause artifacts or generation failures.
+        Technical Fix (Task Quality):
+        - FLUX produces 1024x1024 (1:1)
+        - SVD requires 1024x576 (16:9)
+        - Old logic: Resize 1024x1024 -> 1024x576 (Squashed/Distorted)
+        - New logic: Center Crop 1024x1024 -> 1024x576 (Preserves Aspect Ratio)
         """
         try:
             # Load image
             image = Image.open(image_path).convert("RGB")
-            original_size = image.size
+            width, height = image.size
             
-            # Resize to SVD native resolution
-            image = image.resize(
-                (self.NATIVE_WIDTH, self.NATIVE_HEIGHT),
-                Image.Resampling.LANCZOS
-            )
+            # Target dimensions
+            target_w = self.NATIVE_WIDTH
+            target_h = self.NATIVE_HEIGHT
             
-            self.logger.debug(
-                f"Resized image: {original_size} → "
-                f"{self.NATIVE_WIDTH}x{self.NATIVE_HEIGHT}"
-            )
+            # Calculate aspect ratios
+            img_ratio = width / height
+            target_ratio = target_w / target_h
+            
+            if img_ratio != target_ratio:
+                self.logger.info(f"Correcting aspect ratio: {width}x{height} -> {target_w}x{target_h}")
+                
+                # Center Crop logic
+                if img_ratio > target_ratio:
+                    # Image is wider than target: Crop width
+                    new_width = int(height * target_ratio)
+                    left = (width - new_width) // 2
+                    image = image.crop((left, 0, left + new_width, height))
+                else:
+                    # Image is taller than target: Crop height
+                    new_height = int(width / target_ratio)
+                    top = (height - new_height) // 2
+                    image = image.crop((0, top, width, top + new_height))
+            
+            # Final Resize (to ensure exact pixel dimensions)
+            image = image.resize((target_w, target_h), Image.Resampling.LANCZOS)
             
             return image
             
@@ -161,8 +179,8 @@ class VideoGenerator:
         self,
         image_path: Path,
         output_path: Path,
-        motion_bucket_id: int = 127,
-        noise_aug_strength: float = 0.1,
+        motion_bucket_id: int = 40,   # Lower motion = sharper, less warping (was 127)
+        noise_aug_strength: float = 0.05, # Less noise = cleaner (was 0.1)
         num_frames: int = DEFAULT_FRAMES,
         fps: int = DEFAULT_FPS,
         seed: Optional[int] = None
@@ -173,22 +191,11 @@ class VideoGenerator:
         Args:
             image_path: Input image path
             output_path: Output video path (.mp4)
-            motion_bucket_id: Motion intensity (1-255, default 127)
-            noise_aug_strength: Noise augmentation (0.0-1.0, default 0.1)
+            motion_bucket_id: Motion intensity (default 40 for stability)
+            noise_aug_strength: Noise augmentation (default 0.05)
             num_frames: Number of frames to generate (default 25)
             fps: Output video FPS (default 6)
             seed: Random seed for reproducibility
-            
-        Returns:
-            Path to generated video
-            
-        Raises:
-            VideoGenerationError: If generation fails
-            
-        Technical notes:
-        - motion_bucket_id: Higher = more motion (127 is balanced)
-        - noise_aug_strength: Higher = more variation from source
-        - 25 frames @ 6 FPS = ~4 second clip
         """
         try:
             # Ensure pipeline loaded
@@ -208,17 +215,20 @@ class VideoGenerator:
             # Log generation params
             self.logger.info(
                 f"Generating {num_frames} frames "
-                f"(motion={motion_bucket_id}, noise={noise_aug_strength})"
+                f"(steps=40, motion={motion_bucket_id}, noise={noise_aug_strength})"
             )
             
             # Generate frames
-            # NOTE: This is the memory-intensive step
+            # Quality Boost: num_inference_steps=40 (default 25)
             frames = self.pipeline(
                 image,
-                decode_chunk_size=8,  # Chunk frames during decode (OOM prevention)
+                decode_chunk_size=2,  # Smaller chunks to save VRAM with higher steps
                 num_frames=num_frames,
+                num_inference_steps=40,  # CRITICAL QUALITY BOOST
                 motion_bucket_id=motion_bucket_id,
                 noise_aug_strength=noise_aug_strength,
+                min_guidance_scale=1.0,  # Sharpness tuning
+                max_guidance_scale=2.5,  # Sharpness tuning
                 generator=generator
             ).frames[0]
             
