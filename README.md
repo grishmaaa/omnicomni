@@ -81,3 +81,22 @@ python tests/verify_setup.py
 ## 📄 License
 
 See LICENSE file for details.
+
+# example useage
+# 1️⃣ Generate Scenes + Audio (~30 seconds)
+python pipeline_manager.py --topic "Northern Lights Adventure"
+
+# 2️⃣ Generate Images (~60 seconds)
+# (Copy the exact path from step 1 output)
+python generate_images.py --input output/20241210_XXXXXX_northern_lights_adventure/1_scripts/northern_lights_adventure_scenes.json
+
+# 3️⃣ Generate Videos (~5 minutes)
+python generate_videos.py --topic northern_lights_adventure_scenes
+
+# 4️⃣ Merge Video + Audio (~2 minutes)
+python merge_scenes.py --topic northern_lights_adventure_scenes
+
+# 5️⃣ Create Final Video (~3 minutes)
+python concat_scenes.py --topic northern_lights_adventure_scenes
+
+# 🎉 RESULT: Complete polished video ready for distribution!

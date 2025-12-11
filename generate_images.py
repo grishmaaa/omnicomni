@@ -88,28 +88,41 @@ def load_scenes(json_path: Path) -> List[Dict]:
         raise
 
 
-def build_image_prompt(scene: Dict) -> str:
+def build_image_prompt(scene: Dict, global_style: str = "cinematic") -> str:
     """
     Build high-quality image prompt from scene data
     
-    Combines visual_prompt with quality enhancers for better results
+    Uses Task 13 Advanced Prompt Engineering if structured fields available,
+    falls back to legacy visual_prompt field
     
     Args:
-        scene: Scene dictionary with visual_prompt
+        scene: Scene dictionary with visual fields
+        global_style: Style preset (cinematic, anime, photorealistic, etc.)
         
     Returns:
-        Enhanced prompt for Flux
+        Enhanced prompt for Flux/SD
     """
-    # Get base visual description
-    visual_prompt = scene.get("visual_prompt", "")
-    
-    if not visual_prompt:
-        logger.warning(f"Scene {scene.get('scene_id', '?')} has no visual_prompt")
-        return "A cinematic scene, 4k, highly detailed"
-    
-    # Flux works better with natural language, no need for excessive triggers
-    # The visual_prompt from our Director Engine is already optimized
-    return visual_prompt
+    try:
+        from src.image.prompt_builder import build_flux_prompt, QualityLevel
+        
+        # Use advanced prompt builder
+        prompts = build_flux_prompt(
+            scene=scene,
+            global_style=global_style,
+            quality=QualityLevel.HIGH
+        )
+        
+        return prompts['positive']
+        
+    except ImportError:
+        # Fallback: Legacy mode if prompt_builder not available
+        visual_prompt = scene.get("visual_prompt", "")
+        
+        if not visual_prompt:
+            logger.warning(f"Scene {scene.get('scene_id', '?')} has no visual_prompt")
+            return "A cinematic scene, 4k, highly detailed"
+        
+        return visual_prompt
 
 
 # ============================================================================
