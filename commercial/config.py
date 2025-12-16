@@ -15,12 +15,16 @@ class CommercialConfig(BaseSettings):
     """Configuration for commercial API pipeline"""
     
     # API Keys (optional - will show error in UI if not set)
-    GROQ_API_KEY: str = Field(default="", description="Groq API key for LLM")
+    # LLM Provider (OpenAI GPT-4o-mini - Most Reliable)
+    OPENAI_API_KEY: str = Field(default="", env="OPENAI_API_KEY")
+    OPENAI_MODEL: str = Field(
+        default="gpt-4o-mini",
+        description="OpenAI model for story generation"
+    )
     FAL_API_KEY: str = Field(default="", description="Fal.ai API key for images/video")
     ELEVENLABS_API_KEY: str = Field(default="", description="ElevenLabs API key for voice")
     
     # Model Configuration
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
     FLUX_MODEL: str = "fal-ai/flux-pro"
     MINIMAX_MODEL: str = "fal-ai/minimax-video"
     ELEVENLABS_VOICE: str = "Rachel"  # Default voice

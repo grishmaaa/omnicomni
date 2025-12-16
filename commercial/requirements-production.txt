@@ -1,0 +1,121 @@
+# ============================================================================
+# AI Video Generator - Production Dependencies
+# ============================================================================
+# Last Updated: 2025-12-15
+# Python Version: 3.10+
+
+# ============================================================================
+# Core AI SDKs
+# ============================================================================
+
+# LLM - Groq (High-speed script generation)
+groq>=0.4.0,<1.0.0
+
+# Visuals - Fal.ai (Flux images + Kling/Luma video)
+fal-client>=0.4.0,<1.0.0
+
+# Audio - ElevenLabs (High-fidelity narration)
+elevenlabs>=0.2.26,<1.0.0
+
+# ============================================================================
+# Authentication & Database
+# ============================================================================
+
+# Firebase Authentication
+firebase-admin>=6.0.0,<7.0.0
+
+# PostgreSQL Database
+psycopg2-binary>=2.9.0,<3.0.0
+
+# ============================================================================
+# Web Framework
+# ============================================================================
+
+# Streamlit for UI
+streamlit>=1.28.0,<2.0.0
+
+# ============================================================================
+# Computer Vision (for thumbnails)
+# ============================================================================
+
+# OpenCV for video thumbnail generation
+opencv-python>=4.8.0,<5.0.0
+
+# ============================================================================
+# Video Processing
+# ============================================================================
+
+# Video editing and assembly
+moviepy>=1.0.3,<2.0.0
+imageio>=2.31.0,<3.0.0
+imageio-ffmpeg>=0.4.9,<1.0.0
+
+# Image processing
+Pillow>=10.0.0,<11.0.0
+
+# ============================================================================
+# Configuration & Environment
+# ============================================================================
+
+# Environment variable management
+python-dotenv>=1.0.0,<2.0.0
+
+# Typed configuration with validation
+pydantic>=2.0.0,<3.0.0
+pydantic-settings>=2.0.0,<3.0.0
+
+# ============================================================================
+# Utilities
+# ============================================================================
+
+# HTTP requests (for API calls)
+requests>=2.31.0,<3.0.0
+
+# Progress bars
+tqdm>=4.66.0,<5.0.0
+
+# ============================================================================
+# Development Dependencies (Optional - Comment out for production)
+# ============================================================================
+
+# Code formatting
+# black>=23.0.0,<24.0.0
+
+# Type checking
+# mypy>=1.0.0,<2.0.0
+
+# Testing
+# pytest>=7.4.0,<8.0.0
+# pytest-asyncio>=0.21.0,<1.0.0
+
+# ============================================================================
+# Installation Notes
+# ============================================================================
+# 
+# 1. Create virtual environment:
+#    python -m venv venv
+#
+# 2. Activate:
+#    Windows: venv\Scripts\activate
+#    Mac/Linux: source venv/bin/activate
+#
+# 3. Install:
+#    pip install -r requirements-production.txt
+#
+# 4. Verify:
+#    pip list
+#
+# ============================================================================
+# Version Pinning Strategy
+# ============================================================================
+#
+# We use "compatible release" syntax (>=X.Y.Z,<X+1.0.0) to:
+# - Allow patch updates (security fixes)
+# - Block major version changes (breaking changes)
+# - Ensure reproducible builds
+#
+# Example: groq>=0.4.0,<1.0.0
+# - Allows: 0.4.1, 0.5.0, 0.9.9
+# - Blocks: 1.0.0, 2.0.0
+#
+# ============================================================================

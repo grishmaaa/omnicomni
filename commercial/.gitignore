@@ -1,0 +1,250 @@
+# ============================================================================
+# AI Video Generator - Git Ignore Rules
+# ============================================================================
+# Purpose: Prevent sensitive data and large files from being committed
+# ============================================================================
+
+# ============================================================================
+# CRITICAL: Environment & Secrets
+# ============================================================================
+
+# Environment files (NEVER commit API keys!)
+.env
+.env.local
+.env.production
+.env.*.local
+*.env
+
+# API key files
+secrets/
+*.key
+*.pem
+
+# ============================================================================
+# Python
+# ============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# ============================================================================
+# Generated Assets (LARGE FILES - Don't bloat repo)
+# ============================================================================
+
+# All generated media
+assets/
+assets/images/
+assets/videos/
+assets/audio/
+
+# Temporary files
+.temp/
+tmp/
+temp/
+
+# Output directories
+output/
+outputs/
+generated/
+
+# Cache directories
+.cache/
+cache/
+
+# ============================================================================
+# IDE & Editors
+# ============================================================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================================================
+# Operating System
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ============================================================================
+# Logs & Databases
+# ============================================================================
+
+# Log files
+*.log
+logs/
+*.log.*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================================
+# Project-Specific
+# ============================================================================
+
+# Cost tracking data
+cost_history.json
+cost_report.csv
+
+# User-specific configs
+config.local.py
+settings.local.json
+
+# Backup files
+*.bak
+*.backup
+
+# ============================================================================
+# Dependencies
+# ============================================================================
+
+# Node modules (if using any JS tools)
+node_modules/
+
+# ============================================================================
+# Streamlit
+# ============================================================================
+
+.streamlit/
+.streamlit/secrets.toml
+
+# ============================================================================
+# FFmpeg / MoviePy
+# ============================================================================
+
+# Temporary video files
+*.tmp.mp4
+*.tmp.avi
+
+# ============================================================================
+# ALLOWED FILES (Explicitly tracked)
+# ============================================================================
+# 
+# The following ARE committed:
+# ✓ .env.example (template without real keys)
+# ✓ .env.production.example (production template)
+# ✓ requirements.txt (dependencies)
+# ✓ All .py source files
+# ✓ README.md and documentation
+# ✓ .gitignore (this file)
+#
+# ============================================================================

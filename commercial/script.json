@@ -1,0 +1,36 @@
+{
+  "title": "Elevate Your Journey",
+  "style": "cinematic",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "image_prompt": "Volkswagen Virtus, sleek and powerful Glides effortlessly along a winding hill road, Majestic hills bathed in golden light, Soft, warm sunlight filtering through clouds, wide shot, 24mm, 8k, highly detailed, professional photography, cinematic composition",
+      "narration": "Unleash the extraordinary. Feel the freedom.",
+      "estimated_duration": 5
+    },
+    {
+      "scene_number": 2,
+      "image_prompt": "Sunroof opening, revealing a vibrant sky Fresh air rushes in, embracing the driver, A canvas of blue stretching endlessly, Bright, inviting sunlight, close-up, 50mm, 8k, highly detailed, professional photography, cinematic composition",
+      "narration": "The sky beckons. Let your spirit soar.",
+      "estimated_duration": 5
+    },
+    {
+      "scene_number": 3,
+      "image_prompt": "Fog lights piercing through the mist Illuminate the path ahead, cutting through uncertainty, A mysterious fog enveloping the hills, Cool, ethereal fog light glow, medium shot, 35mm, 8k, highly detailed, professional photography, cinematic composition",
+      "narration": "In the haze, clarity emerges. Navigate your dreams.",
+      "estimated_duration": 5
+    },
+    {
+      "scene_number": 4,
+      "image_prompt": "Driver’s expression, a mix of joy and determination Eyes focused, heart racing with passion, Surroundings blurring into a rush of adventure, Dynamic contrast of light and shadow, close-up, 85mm, 8k, highly detailed, professional photography, cinematic composition",
+      "narration": "This is your moment. Embrace the thrill.",
+      "estimated_duration": 5
+    },
+    {
+      "scene_number": 5,
+      "image_prompt": "Volkswagen Virtus parked at the peak, overlooking a breathtaking vista Driver steps out, arms wide, embracing the world, Endless horizons painted in twilight colors, Warm, golden hues of sunset, wide shot, 24mm, 8k, highly detailed, professional photography, cinematic composition",
+      "narration": "Adventure awaits. Discover what lies beyond.",
+      "estimated_duration": 5
+    }
+  ]
+}

@@ -15,7 +15,7 @@ from typing import Optional, List, Dict
 from dataclasses import dataclass
 import time
 
-from .clients.groq_client import GroqClient, StoryResponse
+from commercial.clients.openai_client import OpenAIClient, StoryResponse
 from .clients.fal_client import FalClient
 from .clients.elevenlabs_client import ElevenLabsClient
 from .config import config
@@ -46,7 +46,7 @@ class CommercialPipeline:
     
     def __init__(
         self,
-        groq_api_key: str,
+        openai_api_key: str,
         fal_api_key: str,
         elevenlabs_api_key: str
     ):
@@ -54,11 +54,15 @@ class CommercialPipeline:
         Initialize pipeline with API clients
         
         Args:
-            groq_api_key: Groq API key
+            together_api_key: Together API key
             fal_api_key: Fal.ai API key
             elevenlabs_api_key: ElevenLabs API key
         """
-        self.groq = GroqClient(groq_api_key, config.GROQ_MODEL)
+        # Initialize API clients
+        self.openai_client = OpenAIClient(
+            api_key=openai_api_key,
+            model=config.OPENAI_MODEL
+        )
         self.fal = FalClient(fal_api_key)
         self.elevenlabs = ElevenLabsClient(elevenlabs_api_key, config.ELEVENLABS_VOICE)
         
