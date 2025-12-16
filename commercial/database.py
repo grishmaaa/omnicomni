@@ -32,29 +32,11 @@ def get_connection():
     if not database_url:
         raise ValueError("DATABASE_URL environment variable not set")
     
-    # For Railway deployment: Force IPv4 by resolving hostname to IP
-    if "supabase.co" in database_url:
-        import socket
-        try:
-            # Extract hostname
-            hostname = database_url.split("@")[1].split(":")[0]
-            # Resolve to IPv4
-            ipv4_address = socket.getaddrinfo(hostname, None, socket.AF_INET)[0][4][0]
-            # Replace hostname with IP
-            database_url = database_url.replace(hostname, ipv4_address)
-            print(f"✅ Resolved {hostname} to IPv4: {ipv4_address}")
-        except Exception as e:
-            print(f"⚠️ IPv4 resolution failed: {e}")
-    
-    print(f"DEBUG: DATABASE_URL = {database_url[:50]}...")
+    print(f"DEBUG: Connecting to database...")
     
     conn = psycopg2.connect(
         database_url,
-        connect_timeout=10,
-        keepalives=1,
-        keepalives_idle=30,
-        keepalives_interval=10,
-        keepalives_count=5
+        connect_timeout=10
     )
     
     return conn
