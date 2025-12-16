@@ -22,23 +22,44 @@ def init_firebase():
     """
     Initialize Firebase Admin SDK
     
-    Uses service account JSON file for credentials.
+    Supports both environment variable (for Railway/production) and JSON file (for local dev).
     Only initializes once (idempotent).
     """
-    if not firebase_admin._apps:
-        # Try JSON file first (more reliable)
-        json_path = Path(__file__).parent / "firebase-credentials.json"
-        
-        if json_path.exists():
-            cred = credentials.Certificate(str(json_path))
+    # Check if already initialized
+    try:
+        firebase_admin.get_app()
+        # Already initialized, skip
+        return
+    except ValueError:
+        # Not initialized yet, proceed
+        pass
+    
+    # Try environment variable first (for Railway/production)
+    firebase_creds_env = os.getenv('FIREBASE_CREDENTIALS_JSON')
+    if firebase_creds_env:
+        import json
+        try:
+            cred_dict = json.loads(firebase_creds_env)
+            cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
-            print("✅ Firebase initialized from JSON file")
-        else:
-            # Fallback to environment variables
-            raise FileNotFoundError(
-                f"Firebase credentials file not found: {json_path}\n"
-                "Please create firebase-credentials.json with your service account key."
-            )
+            print("✅ Firebase initialized from environment variable")
+            return
+        except json.JSONDecodeError as e:
+            print(f"⚠️ Failed to parse FIREBASE_CREDENTIALS_JSON: {e}")
+    
+    # Fallback to JSON file (for local development)
+    json_path = Path(__file__).parent / "firebase-credentials.json"
+    
+    if json_path.exists():
+        cred = credentials.Certificate(str(json_path))
+        firebase_admin.initialize_app(cred)
+        print("✅ Firebase initialized from JSON file")
+    else:
+        # No credentials found
+        raise FileNotFoundError(
+            f"Firebase credentials not found!\n"
+            f"Set FIREBASE_CREDENTIALS_JSON environment variable or create {json_path}"
+        )
 
 
 def signup_user(email: str, password: str, display_name: str = "") -> Dict:

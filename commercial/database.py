@@ -53,8 +53,11 @@ def init_db():
     
     Creates:
     - users: User profiles
+    - subscriptions: User subscription tiers
     - videos: Video metadata
     - generation_sessions: Generation tracking
+    - usage_tracking: Monthly usage limits
+    - payments: Payment transaction history
     """
     conn = get_connection()
     cur = conn.cursor()
@@ -69,6 +72,36 @@ def init_db():
                 display_name VARCHAR(255),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_login TIMESTAMP
+            )
+        """)
+        
+        # Subscriptions table
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS subscriptions (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                tier VARCHAR(50) NOT NULL DEFAULT 'free',
+                status VARCHAR(50) NOT NULL DEFAULT 'active',
+                stripe_customer_id VARCHAR(255),
+                stripe_subscription_id VARCHAR(255),
+                current_period_start TIMESTAMP,
+                current_period_end TIMESTAMP,
+                cancel_at_period_end BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id)
+            )
+        """)
+        
+        # Usage tracking table
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS usage_tracking (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                month VARCHAR(7) NOT NULL,
+                videos_generated INTEGER DEFAULT 0,
+                last_reset TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, month)
             )
         """)
         
@@ -97,6 +130,26 @@ def init_db():
                 completed_at TIMESTAMP
             )
         """)
+        
+        # Payments table
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS payments (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                stripe_payment_intent_id VARCHAR(255),
+                amount INTEGER NOT NULL,
+                currency VARCHAR(3) DEFAULT 'usd',
+                status VARCHAR(50),
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Create indexes for better performance
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_usage_tracking_user_month ON usage_tracking(user_id, month)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_videos_user_id ON videos(user_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id)")
         
         conn.commit()
         print("✅ Database tables created successfully")

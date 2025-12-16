@@ -1,37 +1,78 @@
+# Environment files (NEVER commit these)
+.env.commercial
+.env
+.env.local
+.env.production
+firebase-credentials.json
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-venv/
-*.egg-info/
-dist/
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Output
-output/
+# Virtual environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Generated assets (videos are large, don't commit)
+commercial/user_videos/
+commercial/assets/*.mp4
+commercial/assets/*.mp3
+commercial/assets/*.wav
+commercial/assets/*.png
+commercial/assets/*.jpg
+*.mp4
 *.mp3
 *.wav
 
-# Temp
-.temp/
-temp/
-*.log
+# Keep folder structure but ignore content
+!commercial/user_videos/.gitkeep
+!commercial/assets/.gitkeep
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
 
 # OS
-.DS_Store
 Thumbs.db
-
-# Model cache
-.cache/
-
-# HuggingFace
-*token*
+.DS_Store

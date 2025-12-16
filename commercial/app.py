@@ -1,24 +1,16 @@
 """
-AI Video Generator - Production App with Authentication
+AI Video Generator - Production App
 
-Features:
-- Firebase authentication (login/signup)
-- PostgreSQL database for user data and video metadata
-- User-specific video gallery
-- Session management with temp asset cleanup
+Multi-page application with landing, authentication, and video generation.
 """
 
-# Load environment variables FIRST, before any other imports
+# Load environment variables FIRST
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env.commercial from parent directory
 env_path = Path(__file__).resolve().parent.parent / ".env.commercial"
 load_dotenv(env_path)
-print(f"DEBUG: Loaded .env from {env_path}")
-print(f"DEBUG: .env file exists: {env_path.exists()}")
-print(f"DEBUG: DATABASE_URL loaded: {bool(os.getenv('DATABASE_URL'))}")
 
 import streamlit as st
 import sys
@@ -27,9 +19,15 @@ import importlib.util
 # Add project to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Import our modules
+# Import pages
+from _ui.landing import show_landing_page
+from _ui.about import show_about_page
+from _ui.terms import show_terms_page
+from _ui.pricing import show_pricing_page
+
+# Import auth and database
 from auth import (
-    is_authenticated, login_user, signup_user, 
+    is_authenticated, login_user, signup_user,
     logout_user, get_current_user, init_firebase
 )
 from database import (
@@ -40,7 +38,11 @@ from utils.session_manager import (
     clear_temp_assets, archive_video,
     generate_thumbnail, get_video_duration
 )
-
+from subscription import (
+    create_subscription, get_user_subscription,
+    can_generate_video, increment_usage,
+    get_user_usage, get_tier_info
+)
 
 # ============================================================================
 # Page Configuration
@@ -50,16 +52,15 @@ st.set_page_config(
     page_title="AI Video Generator",
     page_icon="🎬",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="auto"
 )
-
 
 # ============================================================================
 # Initialize Services
 # ============================================================================
 
 def initialize_services():
-    """Initialize Firebase and Database (runs once)"""
+    """Initialize Firebase and Database"""
     try:
         init_firebase()
         init_db()
@@ -68,32 +69,27 @@ def initialize_services():
         st.error(f"❌ Service initialization failed: {e}")
         return False
 
-
 # ============================================================================
-# Authentication UI
+# Authentication Pages
 # ============================================================================
 
 def show_login_page():
-    """Display login/signup page"""
-    st.title("🎬 AI Video Generator")
+    """Login page"""
+    st.title("🔐 Login")
     st.markdown("---")
     
-    # Tabs for login and signup
-    tab1, tab2 = st.tabs(["🔐 Login", "📝 Sign Up"])
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
     
-    with tab1:
-        st.subheader("Login to Your Account")
-        
-        email = st.text_input("Email", key="login_email")
-        password = st.text_input("Password", type="password", key="login_password")
-        
-        if st.button("Login", type="primary"):
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("Login", type="primary", use_container_width=True):
             if email and password:
                 with st.spinner("Logging in..."):
                     user = login_user(email, password)
                     
                     if user:
-                        # Update last login in database
                         update_last_login(user['uid'])
                         st.success("✅ Login successful!")
                         st.rerun()
@@ -102,91 +98,143 @@ def show_login_page():
             else:
                 st.warning("Please enter email and password")
     
-    with tab2:
-        st.subheader("Create New Account")
+    with col2:
+        if st.button("Back to Home", use_container_width=True):
+            st.session_state.page = "landing"
+            st.rerun()
+    
+    st.markdown("---")
+    st.markdown("Don't have an account? [Sign up](#)")
+    if st.button("Create Account"):
+        st.session_state.page = "signup"
+        st.rerun()
+
+
+def show_signup_page():
+    """Signup page with terms acceptance"""
+    st.title("📝 Create Account")
+    st.markdown("---")
+    
+    # Check if terms accepted
+    if not st.session_state.get('terms_accepted', False):
+        st.info("📜 Please read and accept our Terms & Conditions to continue")
         
-        new_email = st.text_input("Email", key="signup_email")
-        new_password = st.text_input("Password (min 6 characters)", type="password", key="signup_password")
-        display_name = st.text_input("Display Name (optional)", key="signup_name")
+        if st.button("View Terms & Conditions", type="primary"):
+            st.session_state.show_acceptance = True
+            st.session_state.page = "terms"
+            st.rerun()
         
-        if st.button("Sign Up", type="primary"):
-            if new_email and new_password:
-                if len(new_password) < 6:
+        if st.button("← Back to Home"):
+            st.session_state.page = "landing"
+            st.rerun()
+        return
+    
+    # Signup form
+    email = st.text_input("Email")
+    password = st.text_input("Password (min 6 characters)", type="password")
+    display_name = st.text_input("Display Name (optional)")
+    
+    # Terms checkbox
+    terms_check = st.checkbox("I agree to the Terms & Conditions", value=True, disabled=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("Sign Up", type="primary", use_container_width=True):
+            if email and password:
+                if len(password) < 6:
                     st.error("Password must be at least 6 characters")
                 else:
                     with st.spinner("Creating account..."):
                         try:
-                            # Create Firebase user
-                            user = signup_user(new_email, new_password, display_name)
-                            
-                            # Create database record
-                            create_user(
-                                user['uid'],
-                                user['email'],
-                                user['display_name']
-                            )
-                            
-                            # Auto-login
+                            user = signup_user(email, password, display_name)
+                            user_db = create_user(user['uid'], user['email'], user['display_name'])
+                            # Create free subscription for new user
+                            create_subscription(user_db['id'], 'free')
                             st.session_state.user = user
+                            st.session_state.terms_accepted = False  # Reset for next signup
                             st.success("✅ Account created successfully!")
                             st.rerun()
-                            
                         except Exception as e:
                             st.error(f"❌ Signup failed: {e}")
             else:
                 st.warning("Please enter email and password")
+    
+    with col2:
+        if st.button("← Back", use_container_width=True):
+            st.session_state.terms_accepted = False
+            st.session_state.page = "landing"
+            st.rerun()
 
 
 # ============================================================================
-# Main Application
+# Main Application (Authenticated)
 # ============================================================================
 
 def show_main_app():
-    """Display main application for authenticated users"""
-    
-    # Get current user
+    """Main video generation app"""
     user = get_current_user()
     firebase_uid = user['uid']
     
-    # Get user from database
     user_db = get_user_by_uid(firebase_uid)
     if not user_db:
-        # Create if doesn't exist
         user_db = create_user(firebase_uid, user['email'], user['display_name'])
     
-    # ========================================================================
-    # Sidebar - User Info & Video Gallery
-    # ========================================================================
+    # Get or create subscription
+    subscription = get_user_subscription(user_db['id'])
+    if not subscription:
+        subscription = create_subscription(user_db['id'], 'free')
     
+    tier = subscription['tier']
+    tier_info = get_tier_info(tier)
+    usage = get_user_usage(user_db['id'])
+    
+    # Sidebar
     with st.sidebar:
         st.title("🎬 AI Video Generator")
         st.markdown("---")
         
-        # User info
         st.markdown(f"👤 **{user['display_name']}**")
         st.caption(user['email'])
         
+        # Subscription info
+        st.markdown("---")
+        st.markdown(f"**Plan:** {tier_info['name']}")
+        
+        limit = tier_info['videos_per_month']
+        current_usage = usage['videos_generated']
+        
+        if limit == -1:
+            st.caption("✨ Unlimited videos")
+        else:
+            st.caption(f"📊 {current_usage}/{limit} videos this month")
+            progress = min(current_usage / limit, 1.0) if limit > 0 else 0
+            st.progress(progress)
+        
+        if tier == 'free':
+            if st.button("⬆️ Upgrade Plan", use_container_width=True):
+                st.session_state.page = "pricing"
+                st.rerun()
+        
         if st.button("🚪 Logout", use_container_width=True):
             logout_user()
+            st.session_state.page = "landing"
             st.rerun()
         
         st.markdown("---")
         st.subheader("📚 Your Videos")
         
-        # Load user's videos from database
         videos = get_user_videos(user_db['id'])
         
         if videos:
             for video in videos:
                 with st.container():
-                    # Show thumbnail if exists
                     if video['thumbnail_path'] and Path(video['thumbnail_path']).exists():
                         st.image(video['thumbnail_path'], use_container_width=True)
                     
                     st.markdown(f"**{video['topic']}**")
                     st.caption(video['created_at'].strftime("%Y-%m-%d %H:%M"))
                     
-                    # Download button
                     if Path(video['file_path']).exists():
                         with open(video['file_path'], 'rb') as f:
                             st.download_button(
@@ -202,27 +250,107 @@ def show_main_app():
         else:
             st.info("No videos yet. Generate your first one!")
     
-    # ========================================================================
     # Main Area - Video Generation
-    # ========================================================================
-    
     st.title("🎬 AI Video Generator")
     
-    # Topic input
+    # Import prompt engineering
+    from prompt_engineering import (
+        get_all_styles, build_enhanced_prompt,
+        save_prompt_to_history, QUALITY_PRESETS
+    )
+    
+    # Basic input
     topic = st.text_input(
         "Enter your video topic:",
-        placeholder="e.g., The Future of Renewable Energy"
+        placeholder="e.g., The Future of Renewable Energy",
+        help="Describe what you want your video to be about"
     )
+    
+    # Advanced options (expandable)
+    with st.expander("⚙️ Advanced Options", expanded=False):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Style preset
+            st.markdown("**🎨 Visual Style**")
+            styles = get_all_styles()
+            style_options = {k: f"{v['icon']} {v['name']}" for k, v in styles.items()}
+            selected_style = st.selectbox(
+                "Choose a style",
+                options=list(style_options.keys()),
+                format_func=lambda x: style_options[x],
+                help="Visual style and mood for your video"
+            )
+            
+            # Show style description
+            st.caption(styles[selected_style]['description'])
+            
+            # Number of scenes
+            num_scenes = st.slider(
+                "Number of Scenes",
+                min_value=3,
+                max_value=10,
+                value=5,
+                help="More scenes = longer video"
+            )
+        
+        with col2:
+            # Quality preset
+            st.markdown("**📺 Video Quality**")
+            quality_options = {k: v['name'] for k, v in QUALITY_PRESETS.items()}
+            
+            # Check tier for quality access
+            if tier == 'free':
+                available_quality = ['standard']
+                st.caption("⬆️ Upgrade to Pro for HD and 4K")
+            elif tier == 'pro':
+                available_quality = ['standard', 'hd']
+                st.caption("⬆️ Upgrade to Enterprise for 4K")
+            else:
+                available_quality = list(quality_options.keys())
+            
+            selected_quality = st.selectbox(
+                "Choose quality",
+                options=available_quality,
+                format_func=lambda x: quality_options[x]
+            )
+            
+            # Custom prompt additions
+            st.markdown("**✏️ Custom Additions**")
+            custom_prompt = st.text_area(
+                "Add custom instructions",
+                placeholder="e.g., Focus on environmental impact, include statistics",
+                height=100,
+                help="Additional details to customize your video"
+            )
+    
+    # Build enhanced prompt
+    if topic:
+        enhanced_prompt = build_enhanced_prompt(topic, selected_style, custom_prompt)
+        
+        # Show preview of enhanced prompt
+        with st.expander("👁️ Preview Enhanced Prompt"):
+            st.info(enhanced_prompt)
     
     # Generate button
     if st.button("🎬 Generate Video", type="primary", disabled=not topic):
         if topic:
+            # Check usage limits
+            can_generate, message = can_generate_video(user_db['id'], tier)
+            
+            if not can_generate:
+                st.error(f"❌ {message}")
+                if st.button("⬆️ Upgrade to Pro"):
+                    st.session_state.page = "pricing"
+                    st.rerun()
+                return
+            
+            st.info(f"ℹ️ {message}")
+            
             try:
-                # Clear temp assets
                 with st.spinner("Clearing previous session..."):
                     clear_temp_assets()
                 
-                # Load modules
                 def load_mod(name, path):
                     spec = importlib.util.spec_from_file_location(name, path)
                     mod = importlib.util.module_from_spec(spec)
@@ -231,47 +359,50 @@ def show_main_app():
                 
                 src = Path(__file__).parent / "src"
                 
-                # Step 1: Generate script
                 with st.spinner("📝 Step 1/5: Generating script..."):
+                    # Use enhanced prompt and selected parameters
                     load_mod("s1", src / "1_script_gen.py").generate_script(
-                        topic, num_scenes=5, style="cinematic"
+                        enhanced_prompt, num_scenes=num_scenes, style=selected_style
                     )
                     st.success("✅ Script generated!")
+                    
+                    # Save prompt to history
+                    save_prompt_to_history(
+                        user_db['id'],
+                        enhanced_prompt,
+                        selected_style,
+                        {'num_scenes': num_scenes, 'quality': selected_quality, 'custom': custom_prompt}
+                    )
                 
-                # Step 2: Generate images
                 with st.spinner("🎨 Step 2/5: Generating images..."):
                     load_mod("s2", src / "2_image_gen.py").generate_images()
                     st.success("✅ Images generated!")
                 
-                # Step 3: Generate videos
                 with st.spinner("🎥 Step 3/5: Generating videos (5-8 min)..."):
                     load_mod("s3", src / "3_video_gen.py").generate_videos()
                     st.success("✅ Videos generated!")
                 
-                # Step 4: Generate audio
                 with st.spinner("🎵 Step 4/5: Generating audio..."):
                     load_mod("s4", src / "4_audio_gen.py").generate_audio()
                     st.success("✅ Audio generated!")
                 
-                # Step 5: Assemble final video
                 with st.spinner("🎬 Step 5/5: Assembling final video..."):
                     load_mod("s5", Path(__file__).parent / "complete_assembler.py").main()
                     st.success("✅ Video assembled!")
                 
-                # Archive video
                 video_path = Path(__file__).parent / "assets" / "FINAL_VIDEO.mp4"
                 
                 if video_path.exists():
                     with st.spinner("💾 Saving to your library..."):
-                        # Archive to user folder
                         archived_path, thumbnail_path = archive_video(
                             firebase_uid, topic, video_path
                         )
                         
-                        # Get video duration
                         duration = get_video_duration(archived_path)
                         
-                        # Save to database
+                        # Increment usage count
+                        increment_usage(user_db['id'])
+                        
                         save_video_metadata(
                             user_id=user_db['id'],
                             topic=topic,
@@ -284,26 +415,55 @@ def show_main_app():
                     st.success("🎉 Video generation complete!")
                     st.balloons()
                     
-                    # Show video
+                    # Display video
                     st.video(str(archived_path))
                     
-                    # Download button
-                    with open(archived_path, 'rb') as f:
-                        st.download_button(
-                            "⬇️ Download Video",
-                            f,
-                            file_name=f"{topic}.mp4",
-                            mime="video/mp4"
-                        )
+                    # Advanced download options
+                    st.markdown("### 📥 Download Options")
                     
-                    st.rerun()  # Refresh to show in gallery
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        # Main video download
+                        with open(archived_path, 'rb') as f:
+                            st.download_button(
+                                "⬇️ Download Video (MP4)",
+                                f,
+                                file_name=f"{topic}.mp4",
+                                mime="video/mp4",
+                                use_container_width=True
+                            )
+                    
+                    with col2:
+                        # Audio-only download (if Pro+)
+                        if tier in ['pro', 'enterprise']:
+                            audio_path = Path(__file__).parent / "assets" / "final_audio.mp3"
+                            if audio_path.exists():
+                                with open(audio_path, 'rb') as f:
+                                    st.download_button(
+                                        "🎵 Download Audio Only",
+                                        f,
+                                        file_name=f"{topic}_audio.mp3",
+                                        mime="audio/mpeg",
+                                        use_container_width=True
+                                    )
+                        else:
+                            st.button("🎵 Audio (Pro+)", disabled=True, use_container_width=True)
+                    
+                    with col3:
+                        # Scene images download (if Pro+)
+                        if tier in ['pro', 'enterprise']:
+                            st.button("🖼️ Download Scenes", use_container_width=True, help="Coming soon")
+                        else:
+                            st.button("🖼️ Scenes (Pro+)", disabled=True, use_container_width=True)
+                    
+                    st.rerun()
                 
             except Exception as e:
                 st.error(f"❌ Generation failed: {e}")
                 import traceback
                 st.code(traceback.format_exc())
     
-    # Show existing videos
     st.markdown("---")
     st.subheader("📚 Your Video Library")
     
@@ -324,7 +484,7 @@ def show_main_app():
                         st.download_button(
                             "Download",
                             f,
-                            file_name=f"{video['topic']}.mp4",
+                            file_name=f"{video['topic']}mp4",
                             mime="video/mp4",
                             key=f"main_download_{video['id']}"
                         )
@@ -333,21 +493,40 @@ def show_main_app():
 
 
 # ============================================================================
-# Main Entry Point
+# Main Router
 # ============================================================================
 
 def main():
-    """Main application entry point"""
+    """Main application router"""
     
     # Initialize services
     if not initialize_services():
         st.stop()
     
-    # Check authentication
-    if not is_authenticated():
-        show_login_page()
-    else:
+    # Initialize session state
+    if 'page' not in st.session_state:
+        st.session_state.page = "landing"
+    
+    # Route to appropriate page
+    if is_authenticated():
         show_main_app()
+    else:
+        page = st.session_state.get('page', 'landing')
+        
+        if page == "landing":
+            show_landing_page()
+        elif page == "about":
+            show_about_page()
+        elif page == "terms":
+            show_terms_page()
+        elif page == "login":
+            show_login_page()
+        elif page == "signup":
+            show_signup_page()
+        elif page == "pricing":
+            show_pricing_page()
+        else:
+            show_landing_page()
 
 
 if __name__ == "__main__":
