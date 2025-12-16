@@ -12,11 +12,13 @@ from datetime import datetime
 from pathlib import Path
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from dotenv import load_dotenv
 
-# Load environment variables with absolute path
-env_path = Path(__file__).parent / ".env.commercial"
-load_dotenv(env_path)
+# Only load .env in local development (not on Streamlit Cloud)
+if not os.getenv("STREAMLIT_RUNTIME_ENV"):
+    from dotenv import load_dotenv
+    env_path = Path(__file__).parent / ".env.commercial"
+    load_dotenv(env_path)
+
 
 
 
