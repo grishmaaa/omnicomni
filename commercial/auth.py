@@ -47,6 +47,27 @@ def init_firebase():
         except json.JSONDecodeError as e:
             print(f"⚠️ Failed to parse FIREBASE_CREDENTIALS_JSON: {e}")
     
+    # Try individual environment variables (simpler alternative)
+    project_id = os.getenv('FIREBASE_PROJECT_ID')
+    private_key = os.getenv('FIREBASE_PRIVATE_KEY')
+    client_email = os.getenv('FIREBASE_CLIENT_EMAIL')
+    
+    if project_id and private_key and client_email:
+        try:
+            cred_dict = {
+                "type": "service_account",
+                "project_id": project_id,
+                "private_key": private_key.replace('\\n', '\n'),  # Handle escaped newlines
+                "client_email": client_email,
+                "token_uri": "https://oauth2.googleapis.com/token",
+            }
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+            print("✅ Firebase initialized from individual environment variables")
+            return
+        except Exception as e:
+            print(f"⚠️ Failed to initialize from individual vars: {e}")
+    
     # Fallback to JSON file (for local development)
     json_path = Path(__file__).parent / "firebase-credentials.json"
     
