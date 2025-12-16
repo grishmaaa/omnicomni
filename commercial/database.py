@@ -21,26 +21,13 @@ load_dotenv(env_path)
 
 def get_connection():
     """
-    Create PostgreSQL database connection
+    Get PostgreSQL database connection
     
     Returns:
-        psycopg2.connection: Database connection
+        psycopg2.connection: Database connection object
     """
-    # Try DATABASE_URL first (Heroku/cloud format)
     database_url = os.getenv("DATABASE_URL")
     
-    print(f"DEBUG: DATABASE_URL = {database_url[:50] if database_url else 'None'}...")
-    
-    if database_url:
-        conn = psycopg2.connect(database_url)
-    else:
-        # Fall back to individual parameters
-        print("DEBUG: Falling back to individual parameters")
-        conn = psycopg2.connect(
-            host=os.getenv("POSTGRES_HOST", "localhost"),
-            port=os.getenv("POSTGRES_PORT", "5432"),
-            database=os.getenv("POSTGRES_DB", "video_generator"),
-            user=os.getenv("POSTGRES_USER"),
             password=os.getenv("POSTGRES_PASSWORD")
         )
     
