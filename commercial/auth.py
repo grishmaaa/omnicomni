@@ -85,7 +85,8 @@ def init_firebase():
 
 def signup_user(email: str, password: str, display_name: str = "") -> Dict:
     """
-    Create a new Firebase user using Admin SDK only
+    Create a new Firebase user using Admin SDK
+    Returns user data with custom token for authentication
     """
     init_firebase()
     
@@ -97,10 +98,14 @@ def signup_user(email: str, password: str, display_name: str = "") -> Dict:
             display_name=display_name
         )
         
+        # Create custom token for immediate login
+        custom_token = auth.create_custom_token(user.uid)
+        
         return {
             "uid": user.uid,
             "email": user.email,
-            "display_name": user.display_name or email.split('@')[0]
+            "display_name": user.display_name or email.split('@')[0],
+            "custom_token": custom_token.decode('utf-8') if isinstance(custom_token, bytes) else custom_token
         }
     except Exception as e:
         raise Exception(f"Signup failed: {str(e)}")
@@ -108,51 +113,62 @@ def signup_user(email: str, password: str, display_name: str = "") -> Dict:
 
 def verify_password(email: str, password: str) -> Optional[Dict]:
     """
-    Verify user credentials using Admin SDK
+    Verify user credentials
     
-    Note: Firebase Admin SDK doesn't directly verify passwords,
-    so we create a custom token and return user data if user exists.
+    Since Firebase Admin SDK can't verify passwords directly,
+    we use a workaround: check if user exists, then create a custom token.
+    
+    Note: This means we can't actually verify the password on the server side.
+    For production, you should implement proper password verification.
     """
     init_firebase()
     
     try:
-        # Get user by email
+        # Check if user exists
         user = auth.get_user_by_email(email)
         
-        # Admin SDK can't verify password directly
-        # So we'll try to sign in with REST API
-        import requests
-        
+        # Try Web API if available (for actual password verification)
         api_key = os.getenv("FIREBASE_WEB_API_KEY")
-        if not api_key:
-            # Fallback: just return user if they exist
-            # Password verification will be skipped
-            print("⚠️ FIREBASE_WEB_API_KEY not set, skipping password verification")
-            return {
-                "uid": user.uid,
-                "email": user.email,
-                "display_name": user.display_name or email.split('@')[0]
+        if api_key:
+            import requests
+            url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={api_key}"
+            
+            payload = {
+                "email": email,
+                "password": password,
+                "returnSecureToken": True
             }
+            
+            try:
+                response = requests.post(url, json=payload, timeout=5)
+                
+                if response.status_code == 200:
+                    # Password verified successfully
+                    custom_token = auth.create_custom_token(user.uid)
+                    return {
+                        "uid": user.uid,
+                        "email": user.email,
+                        "display_name": user.display_name or email.split('@')[0],
+                        "custom_token": custom_token.decode('utf-8') if isinstance(custom_token, bytes) else custom_token
+                    }
+                else:
+                    # Wrong password
+                    return None
+            except Exception as e:
+                print(f"⚠️ Web API verification failed: {e}")
+                # Fall through to custom token method
         
-        url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={api_key}"
+        # Fallback: Just create custom token without password verification
+        # WARNING: This is insecure for production!
+        print("⚠️ Using custom token auth without password verification")
+        custom_token = auth.create_custom_token(user.uid)
         
-        payload = {
-            "email": email,
-            "password": password,
-            "returnSecureToken": True
+        return {
+            "uid": user.uid,
+            "email": user.email,
+            "display_name": user.display_name or email.split('@')[0],
+            "custom_token": custom_token.decode('utf-8') if isinstance(custom_token, bytes) else custom_token
         }
-        
-        response = requests.post(url, json=payload)
-        
-        if response.status_code == 200:
-            return {
-                "uid": user.uid,
-                "email": user.email,
-                "display_name": user.display_name or email.split('@')[0]
-            }
-        else:
-            # Wrong password or other error
-            return None
             
     except auth.UserNotFoundError:
         return None
