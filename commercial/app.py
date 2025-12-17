@@ -246,11 +246,6 @@ def show_main_app():
                 st.session_state.page = "pricing"
                 st.rerun()
         
-        if st.button("🚪 Logout", use_container_width=True):
-            logout_user()
-            st.session_state.page = "landing"
-            st.rerun()
-        
         st.markdown("---")
         st.subheader("📚 Your Videos")
         
