@@ -211,7 +211,7 @@ def show_main_app():
             
             st.markdown("---")
             
-            # Logout button
+            # Logout button (only one in entire app)
             if st.button("🚪 Logout", key="sidebar_logout", use_container_width=True):
                 logout_user()
                 st.session_state.user = None
