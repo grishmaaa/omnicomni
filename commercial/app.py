@@ -28,8 +28,6 @@ from _ui.pricing import show_pricing_page
 # Import auth and database
 from auth import (
     is_authenticated, login_user, signup_user,
-    logout_user, get_current_user, init_firebase
-)
 from database import (
     init_db, get_user_by_uid, create_user,
     save_video_metadata, get_user_videos, update_last_login
@@ -42,6 +40,10 @@ from subscription import (
     create_subscription, get_user_subscription,
     can_generate_video, increment_usage,
     get_user_usage, get_tier_info
+)
+from auth_supabase import (
+    is_authenticated, login_user, signup_user,
+    verify_password, logout_user, get_current_user
 )
 
 # ============================================================================
