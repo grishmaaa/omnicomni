@@ -47,11 +47,11 @@ def get_connection():
 def init_db():
     """Initialize database tables"""
     conn = get_connection()
-    cursor = conn.cursor()
+    cur = conn.cursor()
     
     try:
         # Create users table
-        cursor.execute("""
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 uid VARCHAR(255) UNIQUE NOT NULL,
