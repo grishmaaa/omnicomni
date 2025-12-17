@@ -13,6 +13,18 @@ import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 
+
+# Helper function to get environment variables from Streamlit secrets or os.getenv
+def get_env(key: str, default=None):
+    """Get environment variable from Streamlit secrets or os.getenv"""
+    try:
+        if hasattr(st, 'secrets') and key in st.secrets:
+            return st.secrets[key]
+    except:
+        pass
+    return os.getenv(key, default)
+
+
 # Load environment variables
 load_dotenv(".env.commercial")
 
