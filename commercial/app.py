@@ -196,10 +196,27 @@ def show_main_app():
     # Sidebar
     with st.sidebar:
         st.title("🎬 AI Video Generator")
-        st.markdown("---")
         
-        st.markdown(f"👤 **{user['display_name']}**")
-        st.caption(user['email'])
+        if is_authenticated():
+            user = get_current_user()
+            st.write(f"👤 {user['display_name']}")
+            st.write(f"📧 {user['email']}")
+            
+            # Logout button
+            if st.button("🚪 Logout", use_container_width=True):
+                logout_user()
+                st.session_state.user = None
+                st.success("Logged out successfully!")
+                st.rerun()
+            
+            st.markdown("---")
+            
+            # Navigation
+            page = st.radio(
+                "Navigation",
+                ["Dashboard", "Generate Video", "My Videos", "Subscription", "Pricing"],
+                label_visibility="collapsed"
+            )
         
         # Subscription info
         st.markdown("---")

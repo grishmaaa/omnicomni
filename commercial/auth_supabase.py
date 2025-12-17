@@ -85,7 +85,7 @@ def verify_password(email: str, password: str) -> Optional[Dict]:
     try:
         supabase = get_supabase_client()
         
-        # Sign in user
+        # Sign in user - correct method name
         response = supabase.auth.sign_in_with_password({
             "email": email,
             "password": password
@@ -103,7 +103,10 @@ def verify_password(email: str, password: str) -> Optional[Dict]:
             
     except Exception as e:
         print(f"Login error: {e}")
-        return None
+        # Return None for wrong password, but raise for other errors
+        if "Invalid login credentials" in str(e) or "invalid_grant" in str(e):
+            return None
+        raise e
 
 
 def logout_user():
