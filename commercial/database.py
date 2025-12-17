@@ -45,27 +45,17 @@ def get_connection():
 
 
 def init_db():
-    """
-    Create database tables if they don't exist
-    
-    Creates:
-    - users: User profiles
-    - subscriptions: User subscription tiers
-    - videos: Video metadata
-    - generation_sessions: Generation tracking
-    - usage_tracking: Monthly usage limits
-    - payments: Payment transaction history
-    """
+    """Initialize database tables"""
     conn = get_connection()
-    cur = conn.cursor()
+    cursor = conn.cursor()
     
     try:
-        # Users table
-        cur.execute("""
+        # Create users table
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
-                firebase_uid VARCHAR(128) UNIQUE NOT NULL,
-                email VARCHAR(255) NOT NULL,
+                uid VARCHAR(255) UNIQUE NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
                 display_name VARCHAR(255),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_login TIMESTAMP
@@ -138,6 +128,18 @@ def init_db():
                 currency VARCHAR(3) DEFAULT 'usd',
                 status VARCHAR(50),
                 description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Invoices table
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS invoices (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                payment_id INTEGER REFERENCES payments(id) ON DELETE CASCADE,
+                total DECIMAL(10, 2) NOT NULL,
+                items TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
