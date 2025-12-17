@@ -59,6 +59,13 @@ def signup_user(email: str, password: str, display_name: str = "") -> Dict:
         })
         
         if response.user:
+            # Store session for persistence
+            if response.session:
+                st.session_state.supabase_session = {
+                    "access_token": response.session.access_token,
+                    "refresh_token": response.session.refresh_token
+                }
+            
             return {
                 "uid": response.user.id,
                 "email": response.user.email,
@@ -92,6 +99,13 @@ def verify_password(email: str, password: str) -> Optional[Dict]:
         })
         
         if response.user:
+            # Store session for persistence
+            if response.session:
+                st.session_state.supabase_session = {
+                    "access_token": response.session.access_token,
+                    "refresh_token": response.session.refresh_token
+                }
+            
             display_name = response.user.user_metadata.get('display_name', email.split('@')[0])
             return {
                 "uid": response.user.id,
@@ -109,18 +123,78 @@ def verify_password(email: str, password: str) -> Optional[Dict]:
         raise e
 
 
+def restore_session() -> Optional[Dict]:
+    """
+    Restore user session from stored tokens
+    
+    Returns:
+        dict: User data if session is valid, None otherwise
+    """
+    try:
+        if 'supabase_session' not in st.session_state:
+            return None
+        
+        session_data = st.session_state.supabase_session
+        supabase = get_supabase_client()
+        
+        # Set the session
+        supabase.auth.set_session(
+            session_data['access_token'],
+            session_data['refresh_token']
+        )
+        
+        # Get current user
+        user = supabase.auth.get_user()
+        
+        if user and user.user:
+            display_name = user.user.user_metadata.get('display_name', user.user.email.split('@')[0])
+            return {
+                "uid": user.user.id,
+                "email": user.user.email,
+                "display_name": display_name
+            }
+        else:
+            # Session expired, clear it
+            if 'supabase_session' in st.session_state:
+                del st.session_state.supabase_session
+            return None
+            
+    except Exception as e:
+        print(f"Session restore error: {e}")
+        # Clear invalid session
+        if 'supabase_session' in st.session_state:
+            del st.session_state.supabase_session
+        return None
+
+
 def logout_user():
     """Sign out current user"""
     try:
         supabase = get_supabase_client()
         supabase.auth.sign_out()
+        
+        # Clear session data
+        if 'supabase_session' in st.session_state:
+            del st.session_state.supabase_session
+        if 'user' in st.session_state:
+            del st.session_state.user
     except Exception as e:
         print(f"Logout error: {e}")
 
 
 def is_authenticated() -> bool:
     """Check if user is authenticated"""
-    return 'user' in st.session_state and st.session_state.user is not None
+    # First check if user is in session
+    if 'user' in st.session_state and st.session_state.user is not None:
+        return True
+    
+    # Try to restore session from tokens
+    user_data = restore_session()
+    if user_data:
+        st.session_state.user = user_data
+        return True
+    
+    return False
 
 
 def login_user(user_data: Dict):
