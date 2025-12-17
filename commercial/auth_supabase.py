@@ -93,11 +93,17 @@ def verify_password(email: str, password: str) -> Optional[Dict]:
     try:
         supabase = get_supabase_client()
         
+        print(f"🔍 Attempting login for: {email}")
+        
         # Sign in user - correct method name
         response = supabase.auth.sign_in_with_password({
             "email": email,
             "password": password
         })
+        
+        print(f"✅ Login response received")
+        print(f"   User: {response.user is not None}")
+        print(f"   Session: {response.session is not None}")
         
         if response.user:
             # Store session for persistence
@@ -108,19 +114,27 @@ def verify_password(email: str, password: str) -> Optional[Dict]:
                 }
             
             display_name = response.user.user_metadata.get('display_name', email.split('@')[0])
+            print(f"✅ Login successful for: {email}")
             return {
                 "uid": response.user.id,
                 "email": response.user.email,
                 "display_name": display_name
             }
         else:
+            print(f"❌ No user in response")
             return None
             
     except Exception as e:
-        print(f"Login error: {e}")
+        error_msg = str(e)
+        print(f"❌ Login error: {error_msg}")
+        
         # Return None for wrong password, but raise for other errors
-        if "Invalid login credentials" in str(e) or "invalid_grant" in str(e):
+        if "Invalid login credentials" in error_msg or "invalid_grant" in error_msg or "Email not confirmed" in error_msg:
+            print(f"   Reason: Invalid credentials or unconfirmed email")
             return None
+        
+        # For other errors, raise to see in Streamlit
+        print(f"   Unexpected error - raising exception")
         raise e
 
 
