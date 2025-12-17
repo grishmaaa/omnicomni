@@ -60,9 +60,8 @@ st.set_page_config(
 # ============================================================================
 
 def initialize_services():
-    """Initialize Firebase and Database"""
+    """Initialize Database"""
     try:
-        init_firebase()
         init_db()
         return True
     except Exception as e:
