@@ -25,9 +25,7 @@ from _ui.about import show_about_page
 from _ui.terms import show_terms_page
 from _ui.pricing import show_pricing_page
 
-# Import auth and database
-from auth import (
-    is_authenticated, login_user, signup_user,
+# Import custom modules
 from database import (
     init_db, get_user_by_uid, create_user,
     save_video_metadata, get_user_videos, update_last_login
