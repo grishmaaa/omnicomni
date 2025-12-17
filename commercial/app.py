@@ -93,6 +93,13 @@ def show_login_page():
                         if user_data:
                             # Store user in session
                             st.session_state.user = user_data
+                            
+                            # Update last login in database
+                            try:
+                                update_last_login(user_data['uid'])
+                            except:
+                                pass  # Don't fail login if update fails
+                            
                             st.success("✅ Login successful!")
                             st.rerun()
                         else:
