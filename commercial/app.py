@@ -86,14 +86,19 @@ def show_login_page():
         if st.button("Login", type="primary", use_container_width=True):
             if email and password:
                 with st.spinner("Logging in..."):
-                    user = login_user(email, password)
-                    
-                    if user:
-                        update_last_login(user['uid'])
-                        st.success("✅ Login successful!")
-                        st.rerun()
-                    else:
-                        st.error("❌ Invalid email or password")
+                    try:
+                        # verify_password returns user data dict or None
+                        user_data = verify_password(email, password)
+                        
+                        if user_data:
+                            # Store user in session
+                            st.session_state.user = user_data
+                            st.success("✅ Login successful!")
+                            st.rerun()
+                        else:
+                            st.error("❌ Invalid email or password")
+                    except Exception as e:
+                        st.error(f"❌ Login failed: {e}")
             else:
                 st.warning("Please enter email and password")
     
