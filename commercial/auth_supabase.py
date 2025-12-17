@@ -47,11 +47,12 @@ def signup_user(email: str, password: str, display_name: str = "") -> Dict:
     try:
         supabase = get_supabase_client()
         
-        # Sign up user
+        # Sign up user with email confirmation disabled
         response = supabase.auth.sign_up({
             "email": email,
             "password": password,
             "options": {
+                "email_redirect_to": None,
                 "data": {
                     "display_name": display_name or email.split('@')[0]
                 }
