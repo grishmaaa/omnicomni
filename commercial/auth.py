@@ -1,14 +1,13 @@
 """
 Firebase Authentication Module
 
-Handles user authentication using Firebase Admin SDK.
-Provides signup, login, logout, and session management for Streamlit app.
+Handles user authentication using Firebase Admin SDK and REST API.
 """
 
 import os
 import json
 import streamlit as st
-from typing import Optional, Dict
+from typing import Dict, Optional
 from pathlib import Path
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -22,64 +21,59 @@ def init_firebase():
     """
     Initialize Firebase Admin SDK
     
-    Supports both environment variable (for Railway/production) and JSON file (for local dev).
+    Supports Streamlit secrets, environment variables, and JSON file.
     Only initializes once (idempotent).
     """
     # Check if already initialized
     try:
         firebase_admin.get_app()
-        # Already initialized, skip
         return
     except ValueError:
-        # Not initialized yet, proceed
         pass
     
-    # Try environment variable first (for Railway/production)
-    firebase_creds_env = os.getenv('FIREBASE_CREDENTIALS_JSON')
+    # Try environment variable first (Streamlit secrets or .env)
+    firebase_creds_env = get_env('FIREBASE_CREDENTIALS_JSON')
     if firebase_creds_env:
-        import json
         try:
             cred_dict = json.loads(firebase_creds_env)
             cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
-            print("✅ Firebase initialized from environment variable")
+            print("✅ Firebase initialized from credentials JSON")
             return
         except json.JSONDecodeError as e:
             print(f"⚠️ Failed to parse FIREBASE_CREDENTIALS_JSON: {e}")
     
-    # Try individual environment variables (simpler alternative)
-    project_id = os.getenv('FIREBASE_PROJECT_ID')
-    private_key = os.getenv('FIREBASE_PRIVATE_KEY')
-    client_email = os.getenv('FIREBASE_CLIENT_EMAIL')
+    # Try individual environment variables
+    project_id = get_env('FIREBASE_PROJECT_ID')
+    private_key = get_env('FIREBASE_PRIVATE_KEY')
+    client_email = get_env('FIREBASE_CLIENT_EMAIL')
     
     if project_id and private_key and client_email:
         try:
             cred_dict = {
                 "type": "service_account",
                 "project_id": project_id,
-                "private_key": private_key.replace('\\n', '\n'),  # Handle escaped newlines
+                "private_key": private_key.replace('\\n', '\n'),
                 "client_email": client_email,
                 "token_uri": "https://oauth2.googleapis.com/token",
             }
             cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
-            print("✅ Firebase initialized from individual environment variables")
+            print("✅ Firebase initialized from individual variables")
             return
         except Exception as e:
             print(f"⚠️ Failed to initialize from individual vars: {e}")
     
-    # Fallback to JSON file (for local development)
+    # Fallback to JSON file (local development)
     json_path = Path(__file__).parent / "firebase-credentials.json"
-    
     if json_path.exists():
         cred = credentials.Certificate(str(json_path))
         firebase_admin.initialize_app(cred)
         print("✅ Firebase initialized from JSON file")
     else:
-        # No credentials found
         raise FileNotFoundError(
             f"Firebase credentials not found!\n"
-            f"Set FIREBASE_CREDENTIALS_JSON environment variable or create {json_path}"
+            f"Set FIREBASE_CREDENTIALS_JSON or individual vars"
         )
 
 
@@ -128,7 +122,7 @@ def verify_password(email: str, password: str) -> Optional[Dict]:
         user = auth.get_user_by_email(email)
         
         # Try Web API if available (for actual password verification)
-        api_key = os.getenv("FIREBASE_WEB_API_KEY")
+        api_key = get_env("FIREBASE_WEB_API_KEY")
         if api_key:
             import requests
             url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={api_key}"

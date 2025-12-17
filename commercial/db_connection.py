@@ -9,8 +9,18 @@ def get_connection():
     """
     Get database connection with proper environment handling
     """
-    # Get DATABASE_URL from environment (Streamlit secrets or local .env)
-    database_url = os.getenv("DATABASE_URL")
+    # Try Streamlit secrets first
+    database_url = None
+    try:
+        import streamlit as st
+        if hasattr(st, 'secrets') and 'DATABASE_URL' in st.secrets:
+            database_url = st.secrets['DATABASE_URL']
+    except:
+        pass
+    
+    # Fall back to environment variable
+    if not database_url:
+        database_url = os.getenv("DATABASE_URL")
     
     if not database_url:
         # Fallback: try loading from .env.commercial for local development
