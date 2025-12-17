@@ -209,8 +209,10 @@ def show_main_app():
             st.write(f"👤 {user['display_name']}")
             st.write(f"📧 {user['email']}")
             
+            st.markdown("---")
+            
             # Logout button
-            if st.button("🚪 Logout", use_container_width=True):
+            if st.button("🚪 Logout", key="sidebar_logout", use_container_width=True):
                 logout_user()
                 st.session_state.user = None
                 st.success("Logged out successfully!")
