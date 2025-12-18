@@ -2,20 +2,20 @@
 
 **Between:** OmniComni AI Video Generator  
 **And:** Customer  
-**Effective Date:** January 1, 2025
+**Effective Date:** January 2025
 
 ---
 
 ## 1. SERVICE DESCRIPTION
 
-OmniComni provides an AI-powered video generation platform that allows customers to create professional videos from text prompts.
+OmniComni is a **new AI-powered video generation platform** that allows customers to create professional videos from text prompts. We are a startup in active development.
 
 ### Services Included:
 - AI video generation from text prompts
-- Multiple quality tiers (HD, Full HD, 4K)
+- Multiple quality options (as available)
 - Cloud storage for generated videos
-- API access (Enterprise tier)
-- Technical support
+- Email support
+- Regular updates and improvements
 
 ---
 
@@ -23,94 +23,170 @@ OmniComni provides an AI-powered video generation platform that allows customers
 
 ### Starter Plan - $9.99/month
 - 10 videos per month
-- HD quality (720p)
-- Basic email support
-- 24-hour response time
+- Standard quality
+- Email support
+- Best-effort response time
 
 ### Professional Plan - $29.99/month
 - 50 videos per month
-- Full HD quality (1080p)
+- Higher quality output
 - Priority email support
-- 12-hour response time
-- No watermark
+- Faster response time
 
 ### Enterprise Plan - $700/month
 - Unlimited videos
-- 4K quality
-- 24/7 dedicated support
-- 2-hour response time
-- API access
-- Custom branding
-- SLA guarantee
+- Best available quality
+- Dedicated support
+- Custom features (as available)
+- Direct communication channel
+
+**Note:** We are a startup. Features and limits may change as we grow. We'll notify you 30 days before any changes.
 
 ---
 
-## 3. UPTIME GUARANTEE
+## 3. SERVICE AVAILABILITY
 
-- **Target Uptime:** 99.5% monthly uptime
-- **Scheduled Maintenance:** Announced 48 hours in advance
-- **Unplanned Downtime:** Service credits provided for downtime exceeding 0.5%
+**Target Uptime:** We aim for 95%+ monthly uptime
 
-### Service Credits:
-- 99.0% - 99.5% uptime: 10% monthly fee credit
-- 95.0% - 99.0% uptime: 25% monthly fee credit
-- Below 95.0% uptime: 50% monthly fee credit
+**Reality Check:**
+- We're a new service and may experience downtime
+- Scheduled maintenance will be announced when possible
+- We're working hard to improve stability
+- No financial guarantees for downtime (yet)
+
+**What we promise:**
+- Honest communication about issues
+- Quick response to problems
+- Continuous improvement
+- Refunds if service is unusable
 
 ---
 
-## 4. SUPPORT RESPONSE TIMES
+## 4. SUPPORT
 
-| Tier | Response Time | Support Channels |
-|------|---------------|------------------|
-| Starter | 24 hours | Email |
-| Professional | 12 hours | Email, Chat |
-| Enterprise | 2 hours | Email, Chat, Phone |
+| Tier | Target Response | Reality |
+|------|----------------|---------|
+| Starter | 48 hours | We'll do our best |
+| Professional | 24 hours | Usually faster |
+| Enterprise | 12 hours | Priority handling |
+
+**Honest note:** We're a small team. Response times may vary, especially on weekends/holidays.
 
 ---
 
 ## 5. DATA SECURITY
 
-- All data encrypted in transit (TLS 1.3)
-- Data encrypted at rest (AES-256)
-- Regular security audits
-- GDPR compliant
-- Data backup every 24 hours
+**What we do:**
+- Use industry-standard encryption
+- Secure cloud hosting (Supabase, Streamlit)
+- Regular backups
+- No selling of user data
+
+**What we can't guarantee:**
+- We're not enterprise-scale (yet)
+- No formal security audits (yet)
+- No compliance certifications (yet)
+
+**We promise:** To be transparent about any security issues and notify you immediately.
 
 ---
 
 ## 6. PAYMENT TERMS
 
-- Monthly billing in advance
-- Accepted payment methods: Credit/Debit cards, UPI, Net Banking
+- Monthly billing in advance via Razorpay
 - Auto-renewal unless cancelled
-- Refund policy: Pro-rated refunds within 7 days of billing
+- **NO REFUNDS** - All sales are final
+- We may adjust pricing with 30 days notice
 
 ---
 
-## 7. TERMINATION
+## 7. NO REFUND POLICY
 
-- Either party may terminate with 30 days written notice
-- Customer data retained for 30 days post-termination
-- No refunds for partial months
+**IMPORTANT: NO REFUNDS**
+
+- All payments are **non-refundable**
+- No refunds for any reason
+- No partial refunds
+- No pro-rated refunds
+- Sales are final once payment is processed
+
+**Why no refunds:**
+- Digital service delivered immediately
+- Resources consumed upon video generation
+- API costs incurred per generation
+
+**Before you subscribe:**
+- Test the free tier if available
+- Understand what you're purchasing
+- Contact support if you have questions
 
 ---
 
-## 8. LIMITATIONS
+## 8. CANCELLATION POLICY
 
-- Fair usage policy applies
-- API rate limits: 100 requests/minute (Enterprise)
-- Maximum video length: 5 minutes
-- Storage limit: 100GB per account
+**You can cancel anytime, BUT:**
+- No refunds for current billing period
+- Access continues until period ends
+- No refunds for unused portion
+- Cancellation takes effect at period end
+
+**How to cancel:**
+- Login to your account
+- Go to Settings → Subscription
+- Click "Cancel Subscription"
 
 ---
 
-## 9. CONTACT
+## 9. SHIPPING POLICY
 
-**Email:** support@omnicomni.ai
-**Website:** https://omnicomni.ai
-**Support Hours:** 24/7 for Enterprise, Business hours for others
+**NOT APPLICABLE** - This is a digital service.
+
+- No physical products
+- No shipping
+- Instant digital delivery
+- Access via web platform only
+
+---
+
+## 10. LIMITATIONS
+
+**Be aware:**
+- We're a startup - features may be limited
+- Video generation depends on third-party AI APIs
+- Quality may vary
+- Processing times may vary
+- We're learning and improving daily
+
+**Fair usage:**
+- Don't abuse the service
+- Don't use for illegal content
+- Don't resell without permission
+
+---
+
+## 11. WHAT WE PROMISE
+
+✅ **Honesty** - We'll tell you the truth about capabilities  
+✅ **Effort** - We're working hard to improve  
+✅ **Support** - We'll help when you have issues  
+✅ **Quality** - Best service we can provide  
+✅ **Growth** - We're building something great
+
+**What we DON'T promise:**
+❌ Refunds (all sales final)  
+❌ Perfect uptime (we're a startup)  
+❌ Instant support (we're a small team)
+
+---
+
+## 12. CONTACT
+
+**Email:** support@omnicomni.ai  
+**Website:** https://omnicomni.ai  
+
+**We're a startup.** We appreciate your patience and support as we grow!
 
 ---
 
 **Last Updated:** January 2025  
-**Version:** 1.0
+**Version:** 1.0 (Startup Edition)
