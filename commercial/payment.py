@@ -1,11 +1,12 @@
 """
-Payment Processing Module using Stripe
+Payment Processing Module using Razorpay
 
 Handles payment processing, subscription management, and billing history.
+Razorpay is India's leading payment gateway with full INR support.
 """
 
 import os
-import stripe
+import razorpay
 from typing import Dict, List, Optional
 from datetime import datetime
 import streamlit as st
@@ -22,11 +23,260 @@ def get_env(key: str, default=None):
     return os.getenv(key, default)
 
 
-# Initialize Stripe
-stripe.api_key = get_env("STRIPE_SECRET_KEY")
+# Initialize Razorpay client
+def get_razorpay_client():
+    """Get Razorpay client instance"""
+    key_id = get_env("RAZORPAY_KEY_ID")
+    key_secret = get_env("RAZORPAY_KEY_SECRET")
+    
+    if not key_id or not key_secret:
+        raise ValueError("RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set")
+    
+    return razorpay.Client(auth=(key_id, key_secret))
 
 
-def create_payment_intent(amount: int, currency: str = "usd", user_id: str = None) -> Dict:
+def create_order(amount: int, currency: str = "INR", user_id: str = None) -> Dict:
+    """
+    Create a Razorpay order
+    
+    Args:
+        amount: Amount in paise (e.g., 99900 for ₹999)
+        currency: Currency code (default: INR)
+        user_id: User ID for tracking
+        
+    Returns:
+        dict: Order details including order_id
+    """
+    try:
+        client = get_razorpay_client()
+        
+        order_data = {
+            'amount': amount,
+            'currency': currency,
+            'payment_capture': 1  # Auto capture
+        }
+        
+        if user_id:
+            order_data['notes'] = {'user_id': user_id}
+        
+        order = client.order.create(data=order_data)
+        
+        return {
+            'order_id': order['id'],
+            'amount': amount,
+            'currency': currency
+        }
+    except Exception as e:
+        raise Exception(f"Order creation failed: {str(e)}")
+
+
+def create_subscription(plan_id: str, customer_id: str, total_count: int = 12) -> Dict:
+    """
+    Create a Razorpay subscription
+    
+    Args:
+        plan_id: Razorpay plan ID
+        customer_id: Razorpay customer ID
+        total_count: Number of billing cycles (default: 12 months)
+        
+    Returns:
+        dict: Subscription details
+    """
+    try:
+        client = get_razorpay_client()
+        
+        subscription = client.subscription.create({
+            'plan_id': plan_id,
+            'customer_id': customer_id,
+            'total_count': total_count,
+            'customer_notify': 1
+        })
+        
+        return {
+            'subscription_id': subscription['id'],
+            'status': subscription['status'],
+            'plan_id': plan_id
+        }
+    except Exception as e:
+        raise Exception(f"Subscription creation failed: {str(e)}")
+
+
+def verify_payment(order_id: str, payment_id: str, signature: str) -> bool:
+    """
+    Verify Razorpay payment signature
+    
+    Args:
+        order_id: Razorpay order ID
+        payment_id: Razorpay payment ID
+        signature: Payment signature
+        
+    Returns:
+        bool: True if signature is valid
+    """
+    try:
+        client = get_razorpay_client()
+        
+        params_dict = {
+            'razorpay_order_id': order_id,
+            'razorpay_payment_id': payment_id,
+            'razorpay_signature': signature
+        }
+        
+        client.utility.verify_payment_signature(params_dict)
+        return True
+    except:
+        return False
+
+
+def record_payment(user_id: int, amount: float, payment_id: str, order_id: str, status: str = 'completed') -> int:
+    """
+    Record a payment in the database
+    
+    Args:
+        user_id: Database user ID
+        amount: Payment amount in rupees
+        payment_id: Razorpay payment ID
+        order_id: Razorpay order ID
+        status: Payment status
+        
+    Returns:
+        int: Payment record ID
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            INSERT INTO payments (user_id, amount, payment_intent_id, status, created_at)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING id
+        """, (user_id, amount, f"{payment_id}|{order_id}", status, datetime.now()))
+        
+        payment_record_id = cursor.fetchone()[0]
+        conn.commit()
+        return payment_record_id
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_user_payments(user_id: int) -> List[Dict]:
+    """
+    Get all payments for a user
+    
+    Args:
+        user_id: Database user ID
+        
+    Returns:
+        list: List of payment records
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            SELECT id, amount, payment_intent_id, status, created_at
+            FROM payments
+            WHERE user_id = %s
+            ORDER BY created_at DESC
+        """, (user_id,))
+        
+        payments = []
+        for row in cursor.fetchall():
+            payments.append({
+                'id': row[0],
+                'amount': row[1],
+                'payment_intent_id': row[2],
+                'status': row[3],
+                'created_at': row[4]
+            })
+        
+        return payments
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def create_invoice(user_id: int, payment_id: int, items: List[Dict]) -> Dict:
+    """
+    Create an invoice for a payment
+    
+    Args:
+        user_id: Database user ID
+        payment_id: Payment record ID
+        items: List of invoice items
+        
+    Returns:
+        dict: Invoice details
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Calculate total
+        total = sum(item['amount'] for item in items)
+        
+        cursor.execute("""
+            INSERT INTO invoices (user_id, payment_id, total, items, created_at)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING id
+        """, (user_id, payment_id, total, str(items), datetime.now()))
+        
+        invoice_id = cursor.fetchone()[0]
+        conn.commit()
+        
+        return {
+            'invoice_id': invoice_id,
+            'total': total,
+            'items': items,
+            'created_at': datetime.now()
+        }
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_user_invoices(user_id: int) -> List[Dict]:
+    """
+    Get all invoices for a user
+    
+    Args:
+        user_id: Database user ID
+        
+    Returns:
+        list: List of invoices
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            SELECT id, payment_id, total, items, created_at
+            FROM invoices
+            WHERE user_id = %s
+            ORDER BY created_at DESC
+        """, (user_id,))
+        
+        invoices = []
+        for row in cursor.fetchall():
+            invoices.append({
+                'id': row[0],
+                'payment_id': row[1],
+                'total': row[2],
+                'items': row[3],
+                'created_at': row[4]
+            })
+        
+        return invoices
+    finally:
+        cursor.close()
+        conn.close()
     """
     Create a Stripe payment intent
     
