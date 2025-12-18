@@ -24,6 +24,12 @@ from _ui.landing import show_landing_page
 from _ui.about import show_about_page
 from _ui.terms import show_terms_page
 from _ui.pricing import show_pricing_page
+from _ui.policies import (
+    show_terms_page as show_terms_policy,
+    show_privacy_page,
+    show_refund_page,
+    show_contact_page
+)
 
 # Import custom modules
 from database import (
