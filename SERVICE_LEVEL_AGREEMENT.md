@@ -116,9 +116,10 @@ OmniComni is a **new AI-powered video generation platform** that allows customer
 - API costs incurred per generation
 
 **Before you subscribe:**
-- Test the free tier if available
+- Review pricing and features carefully
 - Understand what you're purchasing
 - Contact support if you have questions
+- **Payment required before any use**
 
 ---
 
