@@ -121,8 +121,8 @@ def show_login_page():
             st.rerun()
     
     st.markdown("---")
-    st.markdown("Don't have an account? [Sign up](#)")
-    if st.button("Create Account"):
+    st.markdown("**Don't have an account?**")
+    if st.button("Create Account", use_container_width=True):
         st.session_state.page = "signup"
         st.rerun()
 
