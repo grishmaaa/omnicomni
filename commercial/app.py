@@ -55,11 +55,15 @@ from auth_supabase import (
 # ============================================================================
 
 st.set_page_config(
-    page_title="AI Video Generator",
+    page_title="OmniComni - AI Video Generator",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="auto"
 )
+
+# Load custom CSS for beautiful UI
+from styles import load_custom_css
+st.markdown(load_custom_css(), unsafe_allow_html=True)
 
 # ============================================================================
 # Initialize Services
