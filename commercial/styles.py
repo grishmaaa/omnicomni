@@ -1,32 +1,22 @@
 """
-Modern, aesthetic CSS styling for the app
+Minimal styling - just clean defaults
 """
 
 def load_custom_css():
-    """Load custom CSS for beautiful UI"""
+    """Minimal CSS - just hide Streamlit branding"""
     return """
     <style>
-    /* Import modern font */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
     
-    /* Global styles */
+    /* Clean font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     * {
-        font-family: 'Inter', sans-serif !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
-    
-    /* Main app background - FIXED */
-    .stApp {
-        background: #f8f9fa;
-    }
-    
-    /* Main content area - FIXED */
-    .main .block-container {
-        background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        max-width: 1400px;
-    }
+    </style>
+    """
     
     /* Sidebar styling */
     section[data-testid="stSidebar"] {
