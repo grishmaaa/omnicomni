@@ -14,19 +14,18 @@ def load_custom_css():
         font-family: 'Inter', sans-serif !important;
     }
     
-    /* Main app background */
+    /* Main app background - FIXED */
     .stApp {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #f8f9fa;
     }
     
-    /* Main content area */
+    /* Main content area - FIXED */
     .main .block-container {
         background: white;
-        border-radius: 20px;
+        border-radius: 12px;
         padding: 2rem;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        max-width: 1200px;
-        margin: 2rem auto;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-width: 1400px;
     }
     
     /* Sidebar styling */
