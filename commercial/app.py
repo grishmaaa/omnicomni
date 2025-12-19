@@ -132,37 +132,42 @@ def show_login_page():
 
 
 def show_signup_page():
-    """Signup page with terms acceptance"""
+    """Signup page with inline terms checkbox"""
     st.title("📝 Create Account")
     st.markdown("---")
     
-    # Check if terms accepted
-    if not st.session_state.get('terms_accepted', False):
-        st.info("📜 Please read and accept our Terms & Conditions to continue")
-        
-        if st.button("View Terms & Conditions", type="primary"):
-            st.session_state.show_acceptance = True
-            st.session_state.page = "terms"
-            st.rerun()
-        
-        if st.button("← Back to Home"):
-            st.session_state.page = "landing"
-            st.rerun()
-        return
-    
+    # NO redirect to terms page - show signup form directly
     # Signup form
     email = st.text_input("Email")
     password = st.text_input("Password (min 6 characters)", type="password")
     display_name = st.text_input("Display Name (optional)")
     
-    # Terms checkbox
-    terms_check = st.checkbox("I agree to the Terms & Conditions", value=True, disabled=True)
+    # Terms checkbox with popup
+    terms_check = st.checkbox("I agree to the Terms & Conditions")
+    
+    # Show terms in expander
+    with st.expander("📜 View Terms & Conditions"):
+        st.markdown("""
+        **By using this service, you agree to:**
+        
+        - Payment required before video generation  
+        - **NO REFUNDS** policy - all sales final
+        - Provide accurate information
+        - Use service lawfully
+        - Not generate illegal/harmful content
+        - Monthly billing, auto-renewal
+        - Service provided "as is"
+        
+        [View full Terms & Conditions](https://technov.ai/?page=terms)
+        """)
     
     col1, col2 = st.columns(2)
     
     with col1:
         if st.button("Sign Up", type="primary", use_container_width=True):
-            if email and password:
+            if not terms_check:
+                st.error("❌ Please accept the Terms & Conditions")
+            elif email and password:
                 if len(password) < 6:
                     st.error("Password must be at least 6 characters")
                 else:
