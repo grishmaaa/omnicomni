@@ -288,6 +288,51 @@ def show_main_app():
     # Main Area - Video Generation
     st.title("🎬 AI Video Generator")
     
+    # CHECK PAYMENT STATUS FIRST
+    if tier == 'free':
+        st.error("🔒 **Payment Required**")
+        st.warning("You must subscribe to a paid plan to generate videos.")
+        
+        st.markdown("### 💳 Choose Your Plan:")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("#### 🌟 Starter")
+            st.markdown("**$9.99/month**")
+            st.markdown("- 10 videos/month")
+            st.markdown("- Standard quality")
+            st.markdown("- Email support")
+            if st.button("Subscribe to Starter", use_container_width=True):
+                st.session_state.page = "pricing"
+                st.rerun()
+        
+        with col2:
+            st.markdown("#### ⭐ Professional")
+            st.markdown("**$29.99/month**")
+            st.markdown("- 50 videos/month")
+            st.markdown("- High quality")
+            st.markdown("- Priority support")
+            if st.button("Subscribe to Pro", type="primary", use_container_width=True):
+                st.session_state.page = "pricing"
+                st.rerun()
+        
+        with col3:
+            st.markdown("#### 🚀 Enterprise")
+            st.markdown("**$700/month**")
+            st.markdown("- Unlimited videos")
+            st.markdown("- Best quality")
+            st.markdown("- 24/7 support")
+            if st.button("Subscribe to Enterprise", use_container_width=True):
+                st.session_state.page = "pricing"
+                st.rerun()
+        
+        st.info("💡 All plans include NO REFUNDS policy. Payment required before use.")
+        return  # Stop here - don't show video generation form
+    
+    # If user has paid plan, show video generation
+    st.success(f"✅ Active Plan: {tier_info['name']}")
+    
     # Import prompt engineering
     from prompt_engineering import (
         get_all_styles, build_enhanced_prompt,
