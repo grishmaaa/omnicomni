@@ -299,9 +299,10 @@ def show_main_app():
         
         with col1:
             st.markdown("#### 🌟 Starter")
-            st.markdown("**$9.99/month**")
-            st.markdown("- 10 videos/month")
-            st.markdown("- Standard quality")
+            st.markdown("**$500/month**")
+            st.markdown("- **35 video generations**")
+            st.markdown("- 30 standard quality")
+            st.markdown("- 5 HD quality")
             st.markdown("- Email support")
             if st.button("Subscribe to Starter", use_container_width=True):
                 st.session_state.page = "pricing"
@@ -309,21 +310,22 @@ def show_main_app():
         
         with col2:
             st.markdown("#### ⭐ Professional")
-            st.markdown("**$29.99/month**")
-            st.markdown("- 50 videos/month")
-            st.markdown("- High quality")
+            st.markdown("**$700/month**")
+            st.markdown("- **70 video generations**")
+            st.markdown("- 45 standard quality")
+            st.markdown("- 25 HD quality")
             st.markdown("- Priority support")
             if st.button("Subscribe to Pro", type="primary", use_container_width=True):
                 st.session_state.page = "pricing"
                 st.rerun()
         
         with col3:
-            st.markdown("#### 🚀 Enterprise")
-            st.markdown("**$700/month**")
-            st.markdown("- Unlimited videos")
-            st.markdown("- Best quality")
-            st.markdown("- 24/7 support")
-            if st.button("Subscribe to Enterprise", use_container_width=True):
+            st.markdown("#### 🚀 Elite")
+            st.markdown("**$1,100/month**")
+            st.markdown("- **100 video generations**")
+            st.markdown("- All HD quality")
+            st.markdown("- Anytime support")
+            if st.button("Subscribe to Elite", use_container_width=True):
                 st.session_state.page = "pricing"
                 st.rerun()
         

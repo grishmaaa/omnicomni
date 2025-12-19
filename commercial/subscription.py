@@ -19,38 +19,49 @@ SUBSCRIPTION_TIERS = {
     'free': {
         'name': 'Free',
         'price': 0,
-        'videos_per_month': 5,
+        'videos_per_month': 0,  # No free videos
         'features': [
-            '5 videos per month',
-            'Standard quality',
-            'Basic support',
-            'Watermark on videos'
+            'Payment required to generate videos',
+            'Choose from paid plans'
+        ]
+    },
+    'starter': {
+        'name': 'Starter',
+        'price': 50000,  # $500 in cents
+        'videos_per_month': 35,
+        'standard_quality': 30,
+        'hd_quality': 5,
+        'features': [
+            '35 video generations per month',
+            '30 standard quality videos',
+            '5 HD quality videos',
+            'Email support'
         ]
     },
     'pro': {
-        'name': 'Pro',
-        'price': 999,  # $9.99 in cents
-        'videos_per_month': 50,
+        'name': 'Professional',
+        'price': 70000,  # $700 in cents
+        'videos_per_month': 70,
+        'standard_quality': 45,
+        'hd_quality': 25,
         'features': [
-            '50 videos per month',
-            'HD quality',
-            'Priority support',
-            'No watermark',
-            'Advanced customization'
+            '70 video generations per month',
+            '45 standard quality videos',
+            '25 HD quality videos',
+            'Priority support'
         ]
     },
-    'enterprise': {
-        'name': 'Enterprise',
-        'price': 4999,  # $49.99 in cents
-        'videos_per_month': -1,  # Unlimited
+    'elite': {
+        'name': 'Elite',
+        'price': 110000,  # $1,100 in cents
+        'videos_per_month': 100,
+        'standard_quality': 0,
+        'hd_quality': 100,
         'features': [
-            'Unlimited videos',
-            '4K quality',
-            '24/7 priority support',
-            'No watermark',
-            'Advanced customization',
-            'API access',
-            'Custom branding'
+            '100 video generations per month',
+            'All HD quality',
+            'Anytime support',
+            'Premium features'
         ]
     }
 }
