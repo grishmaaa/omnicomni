@@ -304,7 +304,8 @@ def show_main_app():
             st.markdown("- 30 standard quality")
             st.markdown("- 5 HD quality")
             st.markdown("- Email support")
-            if st.button("Subscribe to Starter", use_container_width=True):
+            st.markdown("")  # Spacer
+            if st.button("Subscribe", key="sub_starter", use_container_width=True):
                 st.session_state.page = "pricing"
                 st.rerun()
         
@@ -315,7 +316,8 @@ def show_main_app():
             st.markdown("- 45 standard quality")
             st.markdown("- 25 HD quality")
             st.markdown("- Priority support")
-            if st.button("Subscribe to Pro", type="primary", use_container_width=True):
+            st.markdown("")  # Spacer
+            if st.button("Subscribe", key="sub_pro", type="primary", use_container_width=True):
                 st.session_state.page = "pricing"
                 st.rerun()
         
@@ -325,7 +327,9 @@ def show_main_app():
             st.markdown("- **100 video generations**")
             st.markdown("- All HD quality")
             st.markdown("- Anytime support")
-            if st.button("Subscribe to Elite", use_container_width=True):
+            st.markdown("- Premium features")
+            st.markdown("")  # Spacer
+            if st.button("Subscribe", key="sub_elite", use_container_width=True):
                 st.session_state.page = "pricing"
                 st.rerun()
         
