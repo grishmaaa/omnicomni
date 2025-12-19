@@ -104,14 +104,14 @@ def show_pricing_page():
     # Pricing cards
     col1, col2, col3 = st.columns(3)
     
-    # Free Tier
+    # Starter Tier
     with col1:
-        tier_info = get_tier_info('free')
+        tier_info = get_tier_info('starter')
         st.markdown(f"""
         <div class="pricing-card">
             <div class="tier-name">{tier_info['name']}</div>
-            <div class="tier-price">$0</div>
-            <div class="tier-period">forever</div>
+            <div class="tier-price">{format_price(tier_info['price'])}</div>
+            <div class="tier-period">per month</div>
             <div class="feature-list">
         """, unsafe_allow_html=True)
         
@@ -120,9 +120,8 @@ def show_pricing_page():
         
         st.markdown("</div></div>", unsafe_allow_html=True)
         
-        if st.button("Get Started", key="free_btn", use_container_width=True):
-            st.session_state.page = "signup"
-            st.rerun()
+        if st.button("Subscribe to Starter", key="starter_btn", use_container_width=True):
+            st.info("🚧 Payment integration coming soon! Contact support to upgrade.")
     
     # Pro Tier (Featured)
     with col2:
@@ -141,12 +140,12 @@ def show_pricing_page():
         
         st.markdown("</div></div>", unsafe_allow_html=True)
         
-        if st.button("Upgrade to Pro", key="pro_btn", type="primary", use_container_width=True):
+        if st.button("Subscribe to Pro", key="pro_btn", type="primary", use_container_width=True):
             st.info("🚧 Payment integration coming soon! Contact support to upgrade.")
     
-    # Enterprise Tier
+    # Elite Tier
     with col3:
-        tier_info = get_tier_info('enterprise')
+        tier_info = get_tier_info('elite')
         st.markdown(f"""
         <div class="pricing-card">
             <div class="tier-name">{tier_info['name']}</div>
@@ -160,8 +159,8 @@ def show_pricing_page():
         
         st.markdown("</div></div>", unsafe_allow_html=True)
         
-        if st.button("Contact Sales", key="enterprise_btn", use_container_width=True):
-            st.info("📧 Contact: sales@aivideogen.com for Enterprise pricing")
+        if st.button("Subscribe to Elite", key="elite_btn", use_container_width=True):
+            st.info("📧 Contact: sales@omnicomni.ai for Elite plan")
     
     st.markdown("---")
     
@@ -178,14 +177,14 @@ def show_pricing_page():
             st.write("You'll be prompted to upgrade to continue generating videos. Your existing videos remain accessible.")
         
         with st.expander("❓ Do you offer refunds?"):
-            st.write("We offer a 30-day money-back guarantee for all paid plans, no questions asked.")
+            st.write("**NO REFUNDS** - All sales are final. Payment is required before use. Please review plans carefully before subscribing.")
     
     with col2:
         with st.expander("❓ Can I cancel anytime?"):
             st.write("Yes, you can cancel your subscription at any time. You'll retain access until the end of your billing period.")
         
         with st.expander("❓ What payment methods do you accept?"):
-            st.write("We accept all major credit cards, debit cards, and PayPal through Stripe.")
+            st.write("We accept all major credit cards, debit cards, UPI, and Net Banking through Razorpay.")
         
         with st.expander("❓ Is there a free trial for paid plans?"):
             st.write("Start with the Free plan to test the platform. Upgrade when you're ready for more features.")
