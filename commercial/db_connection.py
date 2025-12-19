@@ -1,26 +1,33 @@
 """
 Simple database connection wrapper that handles both local and cloud environments
 """
+Database Connection Module
+
+Handles PostgreSQL connections with caching for better performance.
+"""
+
 import os
+import streamlit as st
 import psycopg2
+from psycopg2 import pool
 from pathlib import Path
 
-def get_connection():
-    """
-    Get database connection with proper environment handling
-    """
-    # Try Streamlit secrets first
-    database_url = None
+
+def get_env(key: str, default=None):
+    """Get environment variable from Streamlit secrets or os.getenv"""
     try:
-        import streamlit as st
-        if hasattr(st, 'secrets') and 'DATABASE_URL' in st.secrets:
-            database_url = st.secrets['DATABASE_URL']
+        if hasattr(st, 'secrets') and key in st.secrets:
+            return st.secrets[key]
     except:
         pass
-    
-    # Fall back to environment variable
-    if not database_url:
-        database_url = os.getenv("DATABASE_URL")
+    return os.getenv(key, default)
+
+
+# Initialize connection pool
+@st.cache_resource
+def get_connection_pool():
+    """Get database connection pool (cached)"""
+    database_url = get_env("DATABASE_URL")
     
     if not database_url:
         # Fallback: try loading from .env.commercial for local development
