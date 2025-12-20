@@ -34,7 +34,9 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "https://technov.ai",
-        "https://www.technov.ai"
+        "https://www.technov.ai",
+        "https://a4jtekyn.up.railway.app",  # Railway frontend URL
+        "https://*.up.railway.app"  # Allow all Railway subdomains
     ],
     allow_credentials=True,
     allow_methods=["*"],
