@@ -81,11 +81,11 @@ async def startup_event():
 # Authentication endpoints
 @app.post("/api/auth/login")
 async def login(request: LoginRequest):
-    """User login with Firebase and database"""
+    """User login with Supabase Auth and database"""
     try:
-        from commercial.auth import verify_password
+        from commercial.auth_supabase import verify_password
         
-        # Verify with Firebase
+        # Verify with Supabase Auth
         user_data = verify_password(request.email, request.password)
         
         if not user_data:
@@ -95,7 +95,7 @@ async def login(request: LoginRequest):
         db_user = get_user_by_uid(user_data['uid'])
         if not db_user:
             db_user = create_user(
-                firebase_uid=user_data['uid'],
+                firebase_uid=user_data['uid'],  # Column name stays same, but it's Supabase UID
                 email=user_data['email'],
                 display_name=user_data.get('display_name', '')
             )
@@ -110,7 +110,7 @@ async def login(request: LoginRequest):
         
         return {
             "success": True,
-            "session_token": user_data['custom_token'],
+            "session_token": user_data['uid'],  # Use UID as session token
             "user": {
                 "id": db_user['id'],
                 "uid": db_user['firebase_uid'],
@@ -131,11 +131,11 @@ async def login(request: LoginRequest):
 
 @app.post("/api/auth/signup")
 async def signup(request: SignupRequest):
-    """User registration"""
+    """User registration with Supabase Auth"""
     try:
-        from commercial.auth import signup_user
+        from commercial.auth_supabase import signup_user
         
-        # Create Firebase user
+        # Create Supabase Auth user
         user_data = signup_user(
             email=request.email,
             password=request.password,
@@ -144,7 +144,7 @@ async def signup(request: SignupRequest):
         
         # Create database user
         db_user = create_user(
-            firebase_uid=user_data['uid'],
+            firebase_uid=user_data['uid'],  # Column name stays same, but it's Supabase UID
             email=user_data['email'],
             display_name=request.name
         )

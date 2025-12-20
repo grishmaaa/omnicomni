@@ -1,17 +1,17 @@
-# 🚀 Quick Deploy to Railway - Your Setup
+# 🚀 Quick Deploy to Railway - Supabase Setup
 
-## Your Infrastructure
-- ✅ **Domain**: technov.ai (GoDaddy)
-- ✅ **Database**: Supabase
-- ✅ **Hosting**: Railway (GitHub connected)
-- ✅ **Auth**: Firebase
+## Your Infrastructure ✅
+- **Domain**: technov.ai (GoDaddy)
+- **Database**: Supabase PostgreSQL
+- **Auth**: Supabase Auth (NOT Firebase!)
+- **Hosting**: Railway (GitHub connected)
 
 ## 🎯 Deploy in 10 Minutes
 
-### 1. Push Latest Code ✅ (Already Done!)
+### 1. Push Latest Code ✅
 ```bash
 git add .
-git commit -m "Updated CORS for technov.ai"
+git commit -m "Updated to use Supabase Auth"
 git push
 ```
 
@@ -24,21 +24,20 @@ git push
 3. Set **Root Directory**: `.` (leave empty or put a dot)
 4. Click **"Add Variables"**
 
-**Copy-paste these environment variables:**
+**Environment Variables:**
 
 ```env
+# Supabase Database
 DATABASE_URL=postgresql://postgres:technovgnavin@db.zashqsgxushwoexvpqri.supabase.co:5432/postgres
+
+# Supabase Auth (get from Supabase Dashboard → Settings → API)
+SUPABASE_URL=https://zashqsgxushwoexvpqri.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
+
+# API Keys (from your .env.commercial)
 GEMINI_API_KEY=AIzaSyAErVEKX8Xu3RGlLLINtd4gUQTWmH_SQuA
 FAL_API_KEY=2778ef66-5cd9-4857-a708-df5104ded605:e01e50bcc194bf5362638bbd4a3da315
 ELEVENLABS_API_KEY=sk_b2f35c77261b81d0a64a0cb8e4fb68b6c018f92a8aefb2e8
-```
-
-**Add your Firebase credentials** (get from your .env.commercial):
-```env
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_PRIVATE_KEY=your-private-key
-FIREBASE_CLIENT_EMAIL=your-client-email
-FIREBASE_WEB_API_KEY=your-web-api-key
 ```
 
 5. Click **"Deploy"**
@@ -51,7 +50,7 @@ FIREBASE_WEB_API_KEY=your-web-api-key
 3. Set **Root Directory**: `web`
 4. Click **"Add Variables"**
 
-**Add these:**
+**Environment Variables:**
 ```env
 PYTHON_BACKEND_URL=https://your-backend-url.up.railway.app
 NEXT_PUBLIC_API_URL=https://your-backend-url.up.railway.app
@@ -65,7 +64,6 @@ NEXT_PUBLIC_API_URL=https://your-backend-url.up.railway.app
 1. Go to **Frontend Service** → **Settings** → **Domains**
 2. Click **"Custom Domain"**
 3. Enter: `technov.ai`
-4. Railway will show you DNS settings
 
 **In GoDaddy DNS:**
 - Add CNAME record:
@@ -76,7 +74,18 @@ NEXT_PUBLIC_API_URL=https://your-backend-url.up.railway.app
 
 5. Wait 5-10 minutes for DNS propagation
 
-### 5. Initialize Database (One-time)
+### 5. Get Supabase Keys
+
+**Go to Supabase Dashboard:**
+1. Select your project
+2. Go to **Settings** → **API**
+3. Copy:
+   - **Project URL** → `SUPABASE_URL`
+   - **anon public** key → `SUPABASE_ANON_KEY`
+
+**Add these to Railway Backend Variables!**
+
+### 6. Initialize Database (One-time)
 
 **Option A - Via Railway Shell:**
 1. Go to Backend service
@@ -95,11 +104,12 @@ python -c "from commercial.database import init_db; init_db()"
 
 - [ ] Code pushed to GitHub
 - [ ] Backend service created in Railway
-- [ ] Backend environment variables added
+- [ ] Supabase URL and keys added to backend
+- [ ] API keys added to backend
 - [ ] Backend deployed successfully
 - [ ] Backend URL copied
 - [ ] Frontend service created in Railway
-- [ ] Frontend environment variables added (with backend URL)
+- [ ] Frontend env vars added (with backend URL)
 - [ ] Frontend deployed successfully
 - [ ] Domain connected to frontend
 - [ ] DNS updated in GoDaddy
@@ -114,9 +124,8 @@ Visit: **https://technov.ai**
 Your new Next.js app is now live with:
 - ✅ Beautiful modern UI
 - ✅ Fast performance
-- ✅ All Streamlit features + more
-- ✅ Your existing Supabase database
-- ✅ Your existing Firebase auth
+- ✅ Supabase Auth
+- ✅ Supabase Database
 - ✅ Custom domain with SSL
 
 ## 🔍 Quick Test
@@ -126,18 +135,27 @@ Your new Next.js app is now live with:
 3. Create account
 4. Login
 5. Try generating a video
-6. Check your Supabase dashboard - you should see the new user!
+6. Check Supabase dashboard - you should see the new user!
 
-## 💡 Pro Tips
+## 🆘 Troubleshooting
 
-- **Logs**: Check Railway logs if something doesn't work
-- **Database**: Use Supabase dashboard to view data
-- **Updates**: Just `git push` and Railway auto-deploys!
+**Backend won't start?**
+- Check Railway logs
+- Make sure SUPABASE_URL and SUPABASE_ANON_KEY are set
+- Verify DATABASE_URL is correct
 
-## 🆘 Need Help?
+**Can't login?**
+- Check Supabase Auth is enabled
+- Verify SUPABASE_ANON_KEY is correct
+- Check backend logs for errors
 
-Check `RAILWAY_DEPLOYMENT.md` for detailed troubleshooting.
+**Frontend can't connect?**
+- Make sure PYTHON_BACKEND_URL points to backend
+- Check backend CORS allows technov.ai
+- Verify both services are running
 
 ---
 
 **That's it! Your app is live on technov.ai! 🚀**
+
+No Firebase - just Supabase! ✨
