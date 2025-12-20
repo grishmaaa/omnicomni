@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+:root {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+}
+
+* {
+  border-color: hsl(217.2 32.6% 17.5%);
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Custom utility classes */
+.text-gradient {
+  background: linear-gradient(to right, rgb(192 132 252), rgb(236 72 153), rgb(147 51 234));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-hover {
+  transition: all 0.3s;
+}
+
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(to right, rgb(168 85 247), rgb(236 72 153));
+  color: white;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  transition: all 0.3s;
+  transform: scale(1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, rgb(147 51 234), rgb(219 39 119));
+  transform: scale(1.05);
+  box-shadow: 0 20px 25px -5px rgba(168, 85, 247, 0.5);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  transition: all 0.3s;
+  transform: scale(1);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.card-hover {
+  transition: all 0.3s;
+}
+
+.card-hover:hover {
+  transform: scale(1.05);
+  box-shadow: 0 25px 50px -12px rgba(168, 85, 247, 0.2);
+}
+
+/* Custom animations */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes glow {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Gradient mesh background */
+.gradient-mesh {
+  background:
+    radial-gradient(at 27% 37%, hsla(263, 70%, 50%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 97% 21%, hsla(280, 70%, 50%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 52% 99%, hsla(300, 70%, 50%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 10% 29%, hsla(240, 70%, 50%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 97% 96%, hsla(320, 70%, 50%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 33% 50%, hsla(250, 70%, 50%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 79% 53%, hsla(290, 70%, 50%, 0.3) 0px, transparent 50%);
+}
