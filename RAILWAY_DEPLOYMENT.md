@@ -1,289 +1,231 @@
-# Railway Deployment Guide 🚂
+# 🚀 Railway Deployment - Using Your Existing Setup
 
-Complete guide to deploy your AI Video Generator to Railway.
+## Your Current Infrastructure
 
-## 🎯 What We'll Deploy
+✅ **Domain**: technov.ai (GoDaddy)  
+✅ **Database**: Supabase PostgreSQL  
+✅ **Hosting**: Railway (already connected to GitHub)  
+✅ **Auth**: Firebase  
 
-1. **Next.js Frontend** - Your beautiful UI
-2. **Python FastAPI Backend** - API server with database
-3. **PostgreSQL Database** - Railway's managed database
+## 🎯 What We're Deploying
 
-## 📋 Prerequisites
+1. **Python Backend** (FastAPI) - New API server
+2. **Next.js Frontend** - New modern UI
+3. **Connect to existing Supabase DB**
+4. **Use existing Firebase Auth**
+5. **Deploy to existing Railway project**
 
-1. Railway account (sign up at railway.app)
-2. GitHub account (to connect your repo)
-3. All environment variables ready
+## 📋 Step-by-Step Deployment
 
-## 🚀 Deployment Steps
+### Step 1: Railway Backend Service
 
-### Step 1: Prepare Your Repository
+Since you already have Railway connected to GitHub, let's add the backend:
 
-First, make sure your code is in a Git repository:
+1. **Go to Railway Dashboard**
+   - Open your existing project (the one connected to technov.ai)
 
-```bash
-# Initialize git if not already done
-git init
+2. **Add New Service**
+   - Click "New Service" → "GitHub Repo"
+   - Select `omnicomni` repository
+   - Set **Root Directory**: `.` (root folder)
+   - Railway will detect it's a Python app
 
-# Add all files
-git add .
+3. **Add Environment Variables**
 
-# Commit
-git commit -m "Initial commit - Next.js migration complete"
-
-# Create GitHub repo and push
-git remote add origin https://github.com/yourusername/your-repo.git
-git branch -M main
-git push -u origin main
-```
-
-### Step 2: Deploy PostgreSQL Database
-
-1. Go to [railway.app](https://railway.app)
-2. Click "New Project"
-3. Click "Provision PostgreSQL"
-4. Railway will create a database and give you connection details
-5. Copy the `DATABASE_URL` - you'll need this!
-
-### Step 3: Deploy Python Backend
-
-1. In Railway, click "New Service" → "GitHub Repo"
-2. Select your repository
-3. Railway will auto-detect it's a Python app
-4. Add these environment variables:
+Click "Variables" tab and add these:
 
 ```env
-# Database (automatically provided by Railway if you linked the DB)
-DATABASE_URL=${{Postgres.DATABASE_URL}}
+# Supabase Database (you already have this!)
+DATABASE_URL=postgresql://postgres:technovgnavin@db.zashqsgxushwoexvpqri.supabase.co:5432/postgres
 
-# Firebase
-FIREBASE_CREDENTIALS_JSON={"type":"service_account","project_id":"..."}
+# Firebase (from your .env.commercial)
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_PRIVATE_KEY=your-private-key
+FIREBASE_CLIENT_EMAIL=your-client-email
 FIREBASE_WEB_API_KEY=your-web-api-key
 
-# API Keys
-GROQ_API_KEY=your-groq-key
-FAL_API_KEY=your-fal-key
-ELEVENLABS_API_KEY=your-elevenlabs-key
-OPENAI_API_KEY=your-openai-key
+# Or use the full JSON (easier!)
+FIREBASE_CREDENTIALS_JSON={"type":"service_account","project_id":"..."}
 
-# Python app settings
+# API Keys (from your .env.commercial)
+GEMINI_API_KEY=AIzaSyAErVEKX8Xu3RGlLLINtd4gUQTWmH_SQuA
+FAL_API_KEY=2778ef66-5cd9-4857-a708-df5104ded605:e01e50bcc194bf5362638bbd4a3da315
+ELEVENLABS_API_KEY=sk_b2f35c77261b81d0a64a0cb8e4fb68b6c018f92a8aefb2e8
+
+# Port (Railway will set this automatically)
 PORT=8000
 ```
 
-5. Add a `Procfile` in your root directory (already exists):
-```
-web: uvicorn api_server:app --host 0.0.0.0 --port $PORT
-```
+4. **Deploy Backend**
+   - Click "Deploy"
+   - Wait for build to complete
+   - Copy the backend URL: `https://your-backend.up.railway.app`
 
-6. Click "Deploy"
-7. Copy the backend URL (e.g., `https://your-app.railway.app`)
+### Step 2: Railway Frontend Service
 
-### Step 4: Deploy Next.js Frontend
+1. **Add Another Service**
+   - Click "New Service" → "GitHub Repo"
+   - Select `omnicomni` repository again
+   - Set **Root Directory**: `web`
+   - Railway will detect Next.js
 
-1. In Railway, click "New Service" → "GitHub Repo"
-2. Select your repository again
-3. Set the **Root Directory** to `web`
-4. Add environment variables:
+2. **Add Environment Variables**
 
 ```env
-PYTHON_BACKEND_URL=https://your-backend.railway.app
-NEXT_PUBLIC_API_URL=https://your-backend.railway.app
+# Point to your backend
+PYTHON_BACKEND_URL=https://your-backend.up.railway.app
+NEXT_PUBLIC_API_URL=https://your-backend.up.railway.app
 ```
 
-5. Railway will auto-detect Next.js and deploy
-6. Your frontend will be live at `https://your-frontend.railway.app`
+3. **Deploy Frontend**
+   - Click "Deploy"
+   - Wait for build to complete
 
-### Step 5: Link Database to Backend
+### Step 3: Connect Custom Domain (technov.ai)
 
-1. In Railway, go to your Python backend service
-2. Click "Variables" tab
-3. Click "Reference" → Select your PostgreSQL database
-4. This automatically adds `DATABASE_URL` to your backend
+You already have technov.ai connected to Railway, so:
 
-## 📝 Required Files
+1. **Go to Frontend Service**
+   - Click "Settings" → "Domains"
+   - You should see `technov.ai` already connected
 
-### 1. `requirements.txt` (Root directory)
+2. **Update DNS if needed**
+   - If not connected, add CNAME record in GoDaddy:
+     ```
+     Type: CNAME
+     Name: @ (or www)
+     Value: your-app.up.railway.app
+     ```
 
-```txt
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-psycopg2-binary==2.9.9
-firebase-admin==6.4.0
-python-dotenv==1.0.0
-pydantic==2.5.3
-requests==2.31.0
+3. **SSL Certificate**
+   - Railway auto-generates SSL
+   - Wait 5-10 minutes for propagation
+
+### Step 4: Initialize Database
+
+The database tables need to be created. Run this once:
+
+1. **Option A: Via Railway Shell**
+   - Go to Backend service
+   - Click "..." → "Shell"
+   - Run: `python -c "from commercial.database import init_db; init_db()"`
+
+2. **Option B: Via Local Script**
+   ```bash
+   # Set your Supabase URL
+   export DATABASE_URL="postgresql://postgres:technovgnavin@db.zashqsgxushwoexvpqri.supabase.co:5432/postgres"
+   
+   # Run initialization
+   python -c "from commercial.database import init_db; init_db()"
+   ```
+
+## ✅ Environment Variables Checklist
+
+### Backend Service
+- [ ] `DATABASE_URL` (Supabase)
+- [ ] `FIREBASE_CREDENTIALS_JSON` or individual Firebase vars
+- [ ] `GEMINI_API_KEY`
+- [ ] `FAL_API_KEY`
+- [ ] `ELEVENLABS_API_KEY`
+- [ ] `PORT` (auto-set by Railway)
+
+### Frontend Service
+- [ ] `PYTHON_BACKEND_URL`
+- [ ] `NEXT_PUBLIC_API_URL`
+
+## 🔧 Update Backend CORS
+
+Make sure your backend allows requests from technov.ai:
+
+In `api_server.py`, the CORS is already set to:
+```python
+allow_origins=["http://localhost:3000", "https://yourdomain.com"]
 ```
 
-### 2. `Procfile` (Root directory)
-
-```
-web: uvicorn api_server:app --host 0.0.0.0 --port $PORT
-```
-
-### 3. `railway.json` (Root directory)
-
-```json
-{
-  "$schema": "https://railway.app/railway.schema.json",
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "uvicorn api_server:app --host 0.0.0.0 --port $PORT",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
-  }
-}
+Update it to:
+```python
+allow_origins=[
+    "http://localhost:3000",
+    "https://technov.ai",
+    "https://www.technov.ai"
+]
 ```
 
-### 4. `web/package.json` (Already exists)
-
-Make sure it has the build script:
-```json
-{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  }
-}
+Then commit and push:
+```bash
+git add api_server.py
+git commit -m "Update CORS for technov.ai"
+git push
 ```
 
-## 🔧 Environment Variables Reference
+Railway will auto-deploy!
 
-### Backend (Python)
-```env
-DATABASE_URL=postgresql://user:pass@host:port/db
-FIREBASE_CREDENTIALS_JSON={"type":"service_account",...}
-FIREBASE_WEB_API_KEY=your-key
-GROQ_API_KEY=your-key
-FAL_API_KEY=your-key
-ELEVENLABS_API_KEY=your-key
-OPENAI_API_KEY=your-key
-PORT=8000
-```
+## 🎯 Your Final Setup
 
-### Frontend (Next.js)
-```env
-PYTHON_BACKEND_URL=https://your-backend.railway.app
-NEXT_PUBLIC_API_URL=https://your-backend.railway.app
-```
+After deployment:
 
-## 🎨 Custom Domain (Optional)
+- **Frontend**: https://technov.ai (Next.js)
+- **Backend**: https://your-backend.up.railway.app (FastAPI)
+- **Database**: Supabase (already configured)
+- **Auth**: Firebase (already configured)
 
-1. Go to your service in Railway
-2. Click "Settings" → "Domains"
-3. Click "Generate Domain" or add custom domain
-4. For custom domain:
-   - Add your domain
-   - Update DNS records as shown
-   - Wait for SSL certificate
+## 🧪 Testing
+
+1. **Visit**: https://technov.ai
+2. **Test Signup**: Create a new account
+3. **Test Login**: Login with your account
+4. **Test Dashboard**: Try generating a video
+5. **Check Database**: Verify users are created in Supabase
+
+## 📊 Monitor in Railway
+
+- **Logs**: Click on service → "Logs" tab
+- **Metrics**: See CPU, memory, requests
+- **Deployments**: View deployment history
+
+## 💰 Cost
+
+Since you're already on Railway:
+- **Backend**: ~$5-10/month (new service)
+- **Frontend**: ~$5-10/month (new service)
+- **Supabase**: Free tier (you're already using)
+- **Total**: ~$10-20/month additional
 
 ## 🔍 Troubleshooting
 
 ### Backend won't start?
 ```bash
-# Check logs in Railway dashboard
+# Check Railway logs
 # Common issues:
 1. Missing environment variables
-2. Database not linked
-3. Wrong PORT variable
+2. Wrong DATABASE_URL
+3. Firebase credentials not set
 ```
 
-### Frontend can't connect to backend?
+### Frontend can't connect?
 ```bash
 # Make sure:
-1. PYTHON_BACKEND_URL is set correctly
-2. Backend is deployed and running
-3. CORS is configured in api_server.py
+1. PYTHON_BACKEND_URL points to backend
+2. Backend CORS allows technov.ai
+3. Both services are running
 ```
 
-### Database connection failed?
+### Database errors?
 ```bash
-# Check:
-1. DATABASE_URL is set
-2. Database service is running
-3. psycopg2-binary is in requirements.txt
+# Verify:
+1. Supabase DATABASE_URL is correct
+2. Database tables are initialized
+3. Supabase project is active
 ```
 
-## 📊 Monitoring
+## 🎉 You're Done!
 
-Railway provides:
-- Real-time logs
-- Metrics dashboard
-- Resource usage
-- Deployment history
+Your app is now live at **https://technov.ai** with:
+- ✅ Modern Next.js UI
+- ✅ FastAPI backend
+- ✅ Supabase database
+- ✅ Firebase authentication
+- ✅ Custom domain
+- ✅ SSL certificate
 
-Access via Railway dashboard → Your Service → Logs/Metrics
-
-## 💰 Pricing
-
-Railway offers:
-- **Free Tier**: $5 free credits/month
-- **Pro Plan**: $20/month + usage
-- **Database**: ~$5-10/month
-
-Estimated monthly cost: **$10-15** for small-medium traffic
-
-## 🚀 Quick Deploy Commands
-
-```bash
-# 1. Commit your code
-git add .
-git commit -m "Ready for Railway deployment"
-git push
-
-# 2. Railway will auto-deploy on push
-
-# 3. Check deployment status
-railway status
-
-# 4. View logs
-railway logs
-```
-
-## ✅ Deployment Checklist
-
-- [ ] Code pushed to GitHub
-- [ ] PostgreSQL database created in Railway
-- [ ] Backend service deployed
-- [ ] Backend environment variables set
-- [ ] Database linked to backend
-- [ ] Frontend service deployed
-- [ ] Frontend environment variables set
-- [ ] Both services running
-- [ ] Test login/signup
-- [ ] Test video generation
-- [ ] Custom domain configured (optional)
-
-## 🎉 You're Live!
-
-Once deployed, your app will be accessible at:
-- Frontend: `https://your-app.railway.app`
-- Backend: `https://your-backend.railway.app`
-
-Share the frontend URL with your users! 🚀
-
-## 📝 Post-Deployment
-
-1. **Test everything**
-   - Login/Signup
-   - Video generation
-   - Video library
-   - Profile page
-
-2. **Monitor logs**
-   - Check for errors
-   - Monitor performance
-   - Track usage
-
-3. **Set up alerts**
-   - Railway can notify you of issues
-   - Set up Sentry for error tracking
-
-4. **Scale as needed**
-   - Railway auto-scales
-   - Upgrade plan if needed
-
----
-
-**Need help?** Check Railway docs or the logs in your dashboard!
+Much better than Streamlit! 🚀

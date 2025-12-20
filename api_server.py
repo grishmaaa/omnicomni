@@ -31,7 +31,11 @@ app = FastAPI(title="AI Video Generator API")
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://yourdomain.com"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://technov.ai",
+        "https://www.technov.ai"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
