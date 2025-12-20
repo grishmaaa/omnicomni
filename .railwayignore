@@ -1,0 +1,9 @@
+# Ignore Next.js frontend for backend service
+web/
+*.md
+docs/
+tests/
+experiments/
+demo_output/
+test_output/
+output/
