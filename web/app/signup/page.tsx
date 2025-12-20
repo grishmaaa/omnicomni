@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function SignupPage() {
+function SignupForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const selectedPlan = searchParams.get("plan") || "free";
@@ -188,8 +188,8 @@ export default function SignupPage() {
                             type="submit"
                             disabled={loading}
                             className={`w-full py-4 rounded-xl font-semibold text-lg transition-all ${loading
-                                    ? "bg-gray-600 cursor-not-allowed"
-                                    : "btn-primary"
+                                ? "bg-gray-600 cursor-not-allowed"
+                                : "btn-primary"
                                 }`}
                         >
                             {loading ? "Creating account..." : "Create Account"}
@@ -233,5 +233,13 @@ export default function SignupPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function SignupPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div></div>}>
+            <SignupForm />
+        </Suspense>
     );
 }
