@@ -1,0 +1,16 @@
+# Don't copy these to Docker image
+web/
+node_modules/
+__pycache__/
+*.pyc
+.git/
+.env*
+*.md
+docs/
+tests/
+experiments/
+demo_output/
+test_output/
+output/
+.vscode/
+.idea/
