@@ -64,7 +64,7 @@ def signup_user(email: str, password: str, display_name: str = "") -> Dict:
         
         if response.user:
             # Store session for persistence
-            if response.session:
+            if response.session and st:
                 st.session_state.supabase_session = {
                     "access_token": response.session.access_token,
                     "refresh_token": response.session.refresh_token
@@ -79,7 +79,7 @@ def signup_user(email: str, password: str, display_name: str = "") -> Dict:
             raise Exception("Signup failed - no user returned")
             
     except Exception as e:
-        raise Exception(f"Signup failed: {str(e)}")
+        raise Exception(f"Signup failed: {e}")
 
 
 def verify_password(email: str, password: str) -> Optional[Dict]:
@@ -110,7 +110,7 @@ def verify_password(email: str, password: str) -> Optional[Dict]:
         
         if response.user:
             # Store session for persistence
-            if response.session:
+            if response.session and st:
                 st.session_state.supabase_session = {
                     "access_token": response.session.access_token,
                     "refresh_token": response.session.refresh_token
@@ -149,7 +149,7 @@ def restore_session() -> Optional[Dict]:
         dict: User data if session is valid, None otherwise
     """
     try:
-        if 'supabase_session' not in st.session_state:
+        if not st or 'supabase_session' not in st.session_state:
             return None
         
         session_data = st.session_state.supabase_session
@@ -173,14 +173,14 @@ def restore_session() -> Optional[Dict]:
             }
         else:
             # Session expired, clear it
-            if 'supabase_session' in st.session_state:
+            if st and 'supabase_session' in st.session_state:
                 del st.session_state.supabase_session
             return None
             
     except Exception as e:
         print(f"Session restore error: {e}")
         # Clear invalid session
-        if 'supabase_session' in st.session_state:
+        if st and 'supabase_session' in st.session_state:
             del st.session_state.supabase_session
         return None
 
@@ -192,9 +192,9 @@ def logout_user():
         supabase.auth.sign_out()
         
         # Clear session data
-        if 'supabase_session' in st.session_state:
+        if st and 'supabase_session' in st.session_state:
             del st.session_state.supabase_session
-        if 'user' in st.session_state:
+        if st and 'user' in st.session_state:
             del st.session_state.user
     except Exception as e:
         print(f"Logout error: {e}")
@@ -202,6 +202,9 @@ def logout_user():
 
 def is_authenticated() -> bool:
     """Check if user is authenticated"""
+    if not st:
+        return False
+        
     # First check if user is in session
     if 'user' in st.session_state and st.session_state.user is not None:
         return True
@@ -217,9 +220,10 @@ def is_authenticated() -> bool:
 
 def login_user(user_data: Dict):
     """Store user data in session"""
-    st.session_state.user = user_data
+    if st:
+        st.session_state.user = user_data
 
 
 def get_current_user() -> Optional[Dict]:
     """Get current authenticated user"""
-    return st.session_state.get('user')
+    return st.session_state.get('user') if st else None
