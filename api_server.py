@@ -29,6 +29,14 @@ from commercial.subscription import (
 app = FastAPI(title="AI Video Generator API")
 
 # CORS middleware
+from fastapi.staticfiles import StaticFiles
+import os
+
+# Create output directory if it doesn't exist
+output_dir = Path("commercial/output")
+output_dir.mkdir(parents=True, exist_ok=True)
+
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -43,6 +51,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files to serve videos
+app.mount("/videos", StaticFiles(directory="commercial/output"), name="videos")
 
 # In-memory job storage (replace with Redis in production)
 jobs = {}
@@ -285,11 +296,18 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
             aspect_ratio=request.aspect_ratio
         )
         
+        # Construct web accessible URL (relative path)
+        # Result path: commercial/output/topic_name/final_video.mp4
+        # Web path: /videos/topic_name/final_video.mp4
+        final_path = Path(result['final_video'])
+        relative_path = final_path.relative_to("commercial/output")
+        web_url = f"/videos/{relative_path}".replace("\\", "/") # Ensure forward slashes
+        
         # Save to database
         video = save_video_metadata(
             user_id=user_id,
             topic=request.topic,
-            file_path=str(result['final_video']),  # Use actual path from result
+            file_path=web_url,  
             duration_seconds=result['duration_seconds'],
             metadata={
                 "style": request.style,
@@ -306,7 +324,7 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
         jobs[job_id]["status"] = "completed"
         jobs[job_id]["progress"] = 100
         jobs[job_id]["video_id"] = video['id']
-        jobs[job_id]["video_url"] = str(result['final_video'])
+        jobs[job_id]["video_url"] = web_url
         
     except Exception as e:
         jobs[job_id]["status"] = "failed"
