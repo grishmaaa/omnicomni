@@ -35,8 +35,9 @@ app.add_middleware(
         "http://localhost:3000",
         "https://technov.ai",
         "https://www.technov.ai",
-        "https://a4jtekyn.up.railway.app",  # Railway frontend URL
-        "https://*.up.railway.app"  # Allow all Railway subdomains
+        "https://omnicomni.vercel.app",
+        "https://*.vercel.app",
+        "https://*.up.railway.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
