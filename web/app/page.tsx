@@ -213,14 +213,20 @@ export default function Home() {
             <Link href="/about" className="text-gray-400 hover:text-white transition-colors">
               About
             </Link>
-            <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="/policies/terms" className="text-gray-400 hover:text-white transition-colors">
               Terms
             </Link>
-            <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="/policies/privacy" className="text-gray-400 hover:text-white transition-colors">
               Privacy
             </Link>
-            <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="/policies/contact" className="text-gray-400 hover:text-white transition-colors">
               Contact
+            </Link>
+            <Link href="/policies/refund" className="text-gray-400 hover:text-white transition-colors">
+              Refund Policy
+            </Link>
+            <Link href="/policies/shipping" className="text-gray-400 hover:text-white transition-colors">
+              Delivery
             </Link>
           </div>
           <div className="text-center text-gray-500">

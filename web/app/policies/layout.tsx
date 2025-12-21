@@ -4,7 +4,7 @@ export default function PoliciesLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-purple-500/30">
+        <div className="min-h-screen gradient-mesh text-white selection:bg-purple-500/30">
             <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
                 <div className="container mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
