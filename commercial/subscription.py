@@ -92,7 +92,7 @@ def can_generate_video(user_id: int, tier: str) -> tuple[bool, str]:
     Returns:
         tuple: (can_generate: bool, message: str)
     """
-    from database import get_connection
+    from commercial.database import get_connection
     from psycopg2.extras import RealDictCursor
     
     limit = get_tier_limit(tier)
@@ -129,7 +129,7 @@ def can_generate_video(user_id: int, tier: str) -> tuple[bool, str]:
 
 def increment_usage(user_id: int):
     """Increment video generation count for current month"""
-    from database import get_connection
+    from commercial.database import get_connection
     
     current_month = datetime.now().strftime("%Y-%m")
     
@@ -159,7 +159,7 @@ def increment_usage(user_id: int):
 
 def get_user_usage(user_id: int) -> Dict:
     """Get user's current month usage statistics"""
-    from database import get_connection
+    from commercial.database import get_connection
     from psycopg2.extras import RealDictCursor
     
     current_month = datetime.now().strftime("%Y-%m")
@@ -188,7 +188,7 @@ def get_user_usage(user_id: int) -> Dict:
 
 def create_subscription(user_id: int, tier: str = 'free') -> Dict:
     """Create a new subscription for a user"""
-    from database import get_connection
+    from commercial.database import get_connection
     from psycopg2.extras import RealDictCursor
     
     conn = get_connection()
@@ -215,7 +215,7 @@ def create_subscription(user_id: int, tier: str = 'free') -> Dict:
 
 def get_user_subscription(user_id: int) -> Optional[Dict]:
     """Get user's current subscription"""
-    from database import get_connection
+    from commercial.database import get_connection
     from psycopg2.extras import RealDictCursor
     
     conn = get_connection()
@@ -240,7 +240,7 @@ def get_user_subscription(user_id: int) -> Optional[Dict]:
 
 def update_subscription_tier(user_id: int, new_tier: str) -> Dict:
     """Update user's subscription tier"""
-    from database import get_connection
+    from commercial.database import get_connection
     from psycopg2.extras import RealDictCursor
     
     conn = get_connection()
@@ -269,7 +269,7 @@ def update_subscription_tier(user_id: int, new_tier: str) -> Dict:
 def record_payment(user_id: int, amount: int, description: str, 
                    stripe_payment_intent_id: str = None) -> Dict:
     """Record a payment transaction"""
-    from database import get_connection
+    from commercial.database import get_connection
     from psycopg2.extras import RealDictCursor
     
     conn = get_connection()
@@ -297,7 +297,7 @@ def record_payment(user_id: int, amount: int, description: str,
 
 def get_user_payments(user_id: int) -> list[Dict]:
     """Get user's payment history"""
-    from database import get_connection
+    from commercial.database import get_connection
     from psycopg2.extras import RealDictCursor
     
     conn = get_connection()
