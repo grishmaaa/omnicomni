@@ -262,52 +262,40 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
         jobs[job_id]["progress"] = 10
         
         # TODO: Initialize CommercialPipeline
-        # from commercial.pipeline import CommercialPipeline
-        # from commercial.config import config
-        # 
-        # pipeline = CommercialPipeline(
-        #     groq_api_key=config.GROQ_API_KEY,
-        #     fal_api_key=config.FAL_API_KEY,
-        #     elevenlabs_api_key=config.ELEVENLABS_API_KEY
-        # )
-        # 
-        # def on_progress(progress):
-        #     jobs[job_id]["stage"] = progress.stage
-        #     jobs[job_id]["progress"] = int((progress.current / progress.total) * 100)
-        # 
-        # pipeline.set_progress_callback(on_progress)
-        # 
-        # result = pipeline.generate_video(
-        #     topic=request.topic,
-        #     style=request.style,
-        #     aspect_ratio=request.aspect_ratio
-        # )
+        # Initialize CommercialPipeline
+        from commercial.pipeline import CommercialPipeline
+        from commercial.config import config
         
-        # Simulate for now
-        import asyncio
-        stages = [
-            ("generating_story", 20),
-            ("creating_images", 40),
-            ("animating_scenes", 60),
-            ("generating_voiceover", 80),
-            ("assembling_video", 90),
-        ]
+        pipeline = CommercialPipeline(
+            openai_api_key=config.OPENAI_API_KEY,
+            fal_api_key=config.FAL_API_KEY,
+            elevenlabs_api_key=config.ELEVENLABS_API_KEY
+        )
         
-        for stage, progress in stages:
-            jobs[job_id]["stage"] = stage
-            jobs[job_id]["progress"] = progress
-            await asyncio.sleep(2)
+        def on_progress(progress):
+            jobs[job_id]["stage"] = progress.stage
+            jobs[job_id]["progress"] = int((progress.current / progress.total) * 100)
+        
+        pipeline.set_progress_callback(on_progress)
+        
+        # Run generation
+        result = pipeline.generate_video(
+            topic=request.topic,
+            style=request.style,
+            aspect_ratio=request.aspect_ratio
+        )
         
         # Save to database
         video = save_video_metadata(
             user_id=user_id,
             topic=request.topic,
-            file_path="/videos/output.mp4",  # TODO: Use actual path
-            duration_seconds=30,
+            file_path=str(result['final_video']),  # Use actual path from result
+            duration_seconds=result['duration_seconds'],
             metadata={
                 "style": request.style,
                 "aspect_ratio": request.aspect_ratio,
-                "num_scenes": request.num_scenes
+                "num_scenes": result['num_scenes'],
+                "total_cost": result['total_cost']
             }
         )
         
@@ -318,7 +306,7 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
         jobs[job_id]["status"] = "completed"
         jobs[job_id]["progress"] = 100
         jobs[job_id]["video_id"] = video['id']
-        jobs[job_id]["video_url"] = video['file_path']
+        jobs[job_id]["video_url"] = str(result['final_video'])
         
     except Exception as e:
         jobs[job_id]["status"] = "failed"

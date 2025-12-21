@@ -119,7 +119,7 @@ class CommercialPipeline:
         try:
             # Stage 1: Generate story
             self._update_progress("story", 0, 5, "Generating story with AI...")
-            story = self.groq.generate_story(
+            story = self.openai_client.generate_story(
                 topic=topic,
                 num_scenes=config.NUM_SCENES,
                 style=style
@@ -316,14 +316,14 @@ class CommercialPipeline:
     def get_total_cost(self) -> float:
         """Get total cost across all services"""
         return (
-            self.groq.get_cost_estimate() +
+            self.openai_client.get_cost_estimate() +
             self.fal.get_cost_estimate() +
             self.elevenlabs.get_cost_estimate()
         )
     
     def reset_usage(self):
         """Reset all usage counters"""
-        self.groq.reset_usage()
+        self.openai_client.reset_usage()
         self.fal.reset_usage()
         self.elevenlabs.reset_usage()
 
