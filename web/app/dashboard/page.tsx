@@ -78,7 +78,7 @@ export default function DashboardPage() {
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
 
-        } catch (error: any) {
+        } catch (error: any) {  
             console.error('Generation error:', error);
             alert(error.message || "Something went wrong sending the request");
             setGenerating(false);
