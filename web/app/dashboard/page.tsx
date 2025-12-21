@@ -28,25 +28,59 @@ export default function DashboardPage() {
         setGenerating(true);
         setProgress(0);
 
-        // Simulate generation process
-        const stages = [
-            { name: "Generating story...", duration: 2000 },
-            { name: "Creating images...", duration: 3000 },
-            { name: "Animating scenes...", duration: 4000 },
-            { name: "Generating voiceover...", duration: 2000 },
-            { name: "Assembling final video...", duration: 2000 }
-        ];
+        try {
+            // Call backend API
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}/api/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    topic,
+                    style,
+                    aspect_ratio: aspectRatio,
+                    num_scenes: numScenes
+                }),
+            });
 
-        let totalProgress = 0;
-        for (const stage of stages) {
-            setCurrentStage(stage.name);
-            await new Promise(resolve => setTimeout(resolve, stage.duration));
-            totalProgress += 100 / stages.length;
-            setProgress(totalProgress);
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Generation failed');
+            }
+
+            const data = await response.json();
+            const jobId = data.job_id;
+
+            // Poll for status
+            while (true) {
+                const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}/api/status/${jobId}`);
+                if (!statusRes.ok) break;
+
+                const status = await statusRes.json();
+
+                setProgress(status.progress);
+                setCurrentStage(status.stage.replace(/_/g, ' ')); // formatting: generating_story -> generating story
+
+                if (status.status === 'completed') {
+                    setGenerating(false);
+                    setCurrentStage("Complete! 🎉");
+                    // Redirect or show video
+                    // For now, let's just alert success until we have a player page
+                    alert(`Video generated! URL: ${status.video_url}`);
+                    break;
+                } else if (status.status === 'failed') {
+                    throw new Error(status.error || 'Generation failed');
+                }
+
+                // Wait 2 seconds before next poll
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+
+        } catch (error: any) {
+            console.error('Generation error:', error);
+            alert(error.message || "Something went wrong sending the request");
+            setGenerating(false);
         }
-
-        setGenerating(false);
-        setCurrentStage("Complete! 🎉");
     };
 
     return (
@@ -116,8 +150,8 @@ export default function DashboardPage() {
                                             key={s.id}
                                             onClick={() => setStyle(s.id)}
                                             className={`p-4 rounded-xl transition-all ${style === s.id
-                                                    ? 'bg-gradient-to-r from-purple-500 to-pink-600 scale-105'
-                                                    : 'bg-white/5 hover:bg-white/10'
+                                                ? 'bg-gradient-to-r from-purple-500 to-pink-600 scale-105'
+                                                : 'bg-white/5 hover:bg-white/10'
                                                 }`}
                                         >
                                             <div className="text-3xl mb-2">{s.emoji}</div>
@@ -176,8 +210,8 @@ export default function DashboardPage() {
                                 onClick={handleGenerate}
                                 disabled={generating}
                                 className={`w-full py-6 rounded-2xl font-bold text-xl transition-all ${generating
-                                        ? 'bg-gray-600 cursor-not-allowed'
-                                        : 'btn-primary'
+                                    ? 'bg-gray-600 cursor-not-allowed'
+                                    : 'btn-primary'
                                     }`}
                             >
                                 {generating ? '⏳ Generating...' : '🚀 Generate Video'}
