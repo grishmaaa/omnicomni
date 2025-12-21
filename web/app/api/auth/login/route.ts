@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         if (!response.ok) {
             const error = await response.json();
             return NextResponse.json(
-                { error: error.message || 'Authentication failed' },
+                { error: error.detail || error.message || 'Authentication failed' },
                 { status: response.status }
             );
         }
