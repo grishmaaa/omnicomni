@@ -5,28 +5,34 @@ export default function ShippingPolicy() {
 
             <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg mb-8 not-prose">
                 <p className="text-blue-200">
-                    <strong>Note:</strong> Technov.ai provides purely digital products and services. No physical goods are shipped.
+                    <strong>NOTICE:</strong> This is a digital-only service. No physical products will be shipped to you.
                 </p>
             </div>
 
-            <h3>1. Service Delivery</h3>
+            <h3>1. Digital Delivery Only</h3>
             <p>
-                Upon successful payment for a subscription or credit pack:
+                Technov.ai products are 100% digital. We do not sell or ship physical goods (such as DVDs, hard drives, or merchandise).
+                Therefore, there are no shipping fees, shipping addresses, or delivery tracking numbers associated with your purchase.
+            </p>
+
+            <h3>2. Immediate Fulfillment</h3>
+            <p>
+                Upon successful payment:
             </p>
             <ul>
-                <li><strong>Instant Access:</strong> Your account will be immediately upgraded, and generation credits will be available for use instantly.</li>
-                <li><strong>Digital Content:</strong> All videos generated on the platform are delivered digitally. You can download them directly from your dashboard or "My Videos" page.</li>
+                <li><strong>Subscriptions:</strong> Your account is automatically and instantly upgraded to the paid tier. You gain immediate access to premium features.</li>
+                <li><strong>Asset Delivery:</strong> All AI-generated videos and images are delivered digitally via your account dashboard ("My Videos" section).</li>
             </ul>
 
-            <h3>2. Timeline</h3>
+            <h3>3. Download & Access</h3>
             <p>
-                Video generation times vary based on complexity, but typically range from 2 to 5 minutes per video.
-                Once generated, the file is available for immediate download.
+                You are responsible for downloading your generated content. While we store your content on our servers for a limited time (as per your plan limits), we recommend downloading your videos immediately after generation.
+                We are not responsible for content lost due to failure to download before retention expiration.
             </p>
 
-            <h3>3. Global Availability</h3>
+            <h3>4. No Physical Address Required</h3>
             <p>
-                Our services are available globally to anyone with an internet connection, subject to local laws and regulations.
+                We do not require a shipping address for purchase. Billing addresses are collected solely for payment verification and tax compliance purpose.
             </p>
         </div>
     );
