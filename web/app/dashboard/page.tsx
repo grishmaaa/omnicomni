@@ -270,61 +270,59 @@ export default function DashboardPage() {
                                 </div>
                             </div>
 
-                        </div>
-
-                        {/* Legal & Support */}
-                        <div className="glass rounded-2xl p-6">
-                            <h3 className="text-white font-semibold mb-4 text-lg">
-                                ⚖️ Legal & Support
-                            </h3>
-                            <div className="space-y-3 text-sm">
-                                <Link href="/policies/terms" className="block text-gray-400 hover:text-white transition-colors">
-                                    📄 Terms & Conditions
-                                </Link>
-                                <Link href="/policies/privacy" className="block text-gray-400 hover:text-white transition-colors">
-                                    🔒 Privacy Policy
-                                </Link>
-                                <Link href="/policies/refund" className="block text-gray-400 hover:text-white transition-colors">
-                                    💸 Refund Policy
-                                </Link>
-                                <Link href="/policies/shipping" className="block text-gray-400 hover:text-white transition-colors">
-                                    📦 Delivery Policy
-                                </Link>
-                                <Link href="/policies/contact" className="block text-gray-400 hover:text-white transition-colors">
-                                    📧 Contact Support
-                                </Link>
+                            {/* Legal & Support */}
+                            <div className="glass rounded-2xl p-6">
+                                <h3 className="text-white font-semibold mb-4 text-lg">
+                                    ⚖️ Legal & Support
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <Link href="/policies/terms" className="block text-gray-400 hover:text-white transition-colors">
+                                        📄 Terms & Conditions
+                                    </Link>
+                                    <Link href="/policies/privacy" className="block text-gray-400 hover:text-white transition-colors">
+                                        🔒 Privacy Policy
+                                    </Link>
+                                    <Link href="/policies/refund" className="block text-gray-400 hover:text-white transition-colors">
+                                        💸 Refund Policy
+                                    </Link>
+                                    <Link href="/policies/shipping" className="block text-gray-400 hover:text-white transition-colors">
+                                        📦 Delivery Policy
+                                    </Link>
+                                    <Link href="/policies/contact" className="block text-gray-400 hover:text-white transition-colors">
+                                        📧 Contact Support
+                                    </Link>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Cost Estimate */}
-                        <div className="glass rounded-2xl p-6">
-                            <h3 className="text-white font-semibold mb-4 text-lg">
-                                💰 Estimated Cost
-                            </h3>
-                            <div className="text-4xl font-bold text-gradient mb-2">
-                                $2.50
+                            {/* Cost Estimate */}
+                            <div className="glass rounded-2xl p-6">
+                                <h3 className="text-white font-semibold mb-4 text-lg">
+                                    💰 Estimated Cost
+                                </h3>
+                                <div className="text-4xl font-bold text-gradient mb-2">
+                                    $2.50
+                                </div>
+                                <p className="text-gray-400 text-sm">
+                                    Based on {numScenes} scenes with {style} style
+                                </p>
                             </div>
-                            <p className="text-gray-400 text-sm">
-                                Based on {numScenes} scenes with {style} style
-                            </p>
-                        </div>
 
-                        {/* Quick Tips */}
-                        <div className="glass rounded-2xl p-6">
-                            <h3 className="text-white font-semibold mb-4 text-lg">
-                                💡 Quick Tips
-                            </h3>
-                            <ul className="space-y-2 text-sm text-gray-300">
-                                <li>• Be specific with your topic</li>
-                                <li>• Choose the right aspect ratio for your platform</li>
-                                <li>• More scenes = longer video</li>
-                                <li>• HD quality uses more quota</li>
-                            </ul>
+                            {/* Quick Tips */}
+                            <div className="glass rounded-2xl p-6">
+                                <h3 className="text-white font-semibold mb-4 text-lg">
+                                    💡 Quick Tips
+                                </h3>
+                                <ul className="space-y-2 text-sm text-gray-300">
+                                    <li>• Be specific with your topic</li>
+                                    <li>• Choose the right aspect ratio for your platform</li>
+                                    <li>• More scenes = longer video</li>
+                                    <li>• HD quality uses more quota</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        </div >
     );
 }

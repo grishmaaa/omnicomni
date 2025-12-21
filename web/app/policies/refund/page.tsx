@@ -3,8 +3,8 @@ export default function RefundPolicy() {
         <div className="prose prose-invert max-w-none">
             <h1 className="text-3xl font-bold mb-6 text-gradient">Cancellation & Refund Policy</h1>
 
-            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg mb-8 not-prose">
-                <p className="text-red-200 font-semibold">
+            <div className="bg-black border border-red-500/50 p-6 rounded-xl mb-8 not-prose shadow-lg shadow-red-900/20">
+                <p className="text-red-400 font-bold text-lg">
                     All purchases are final. We do not offer refunds.
                 </p>
             </div>
