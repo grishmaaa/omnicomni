@@ -8,13 +8,16 @@ Replaces Firebase authentication to avoid JWT signature issues.
 import os
 from typing import Dict, Optional
 from supabase import create_client, Client
-import streamlit as st
+try:
+    import streamlit as st
+except ImportError:
+    st = None
 
 
 def get_env(key: str, default=None):
     """Get environment variable from Streamlit secrets or os.getenv"""
     try:
-        if hasattr(st, 'secrets') and key in st.secrets:
+        if st and hasattr(st, 'secrets') and key in st.secrets:
             return st.secrets[key]
     except:
         pass
