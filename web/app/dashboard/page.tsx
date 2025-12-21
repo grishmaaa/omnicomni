@@ -11,6 +11,7 @@ export default function DashboardPage() {
     const [generating, setGenerating] = useState(false);
     const [progress, setProgress] = useState(0);
     const [currentStage, setCurrentStage] = useState("");
+    const [currentMessage, setCurrentMessage] = useState("");
 
     const styles = [
         { id: "cinematic", name: "Cinematic", emoji: "🎬" },
@@ -60,6 +61,7 @@ export default function DashboardPage() {
 
                 setProgress(status.progress);
                 setCurrentStage(status.stage.replace(/_/g, ' ')); // formatting: generating_story -> generating story
+                if (status.message) setCurrentMessage(status.message);
 
                 if (status.status === 'completed') {
                     setGenerating(false);
@@ -232,8 +234,8 @@ export default function DashboardPage() {
                                             />
                                         </div>
                                     </div>
-                                    <p className="text-gray-400 text-sm">
-                                        ⏳ This may take 2-5 minutes depending on complexity
+                                    <p className="text-gray-400 text-sm animate-pulse">
+                                        👉 {currentMessage || "Contacting AI servers..."}
                                     </p>
                                 </div>
                             )}

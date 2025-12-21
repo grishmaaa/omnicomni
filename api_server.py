@@ -287,6 +287,7 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
         
         def on_progress(progress):
             jobs[job_id]["stage"] = progress.stage
+            jobs[job_id]["message"] = progress.message
             jobs[job_id]["progress"] = int((progress.current / progress.total) * 100)
         
         pipeline.set_progress_callback(on_progress)
