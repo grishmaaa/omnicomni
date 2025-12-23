@@ -96,6 +96,29 @@ async def startup_event():
     except Exception as e:
         print(f"⚠️ Database initialization warning: {e}")
 
+    try:
+        # Ensure mock user (id=1) exists for the hardcoded generation logic
+        from commercial.database import get_connection
+        conn = get_connection()
+        cur = conn.cursor()
+        # Check if user 1 exists
+        cur.execute("SELECT id FROM users WHERE id = 1")
+        if not cur.fetchone():
+            print("🔧 Creating Mock User (id=1) for testing...")
+            # Insert mock user with specific ID 1
+            # We use an explicit INSERT with ID to force it to be 1
+            cur.execute("""
+                INSERT INTO users (id, firebase_uid, email, display_name)
+                OVERRIDING SYSTEM VALUE
+                VALUES (1, 'mock-user-1', 'mock@technov.ai', 'Demo User')
+            """)
+            conn.commit()
+            print("✅ Mock User created")
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print(f"⚠️ Mock user creation warning: {e}")
+
 # Authentication endpoints
 @app.post("/api/auth/login")
 async def login(request: LoginRequest):
