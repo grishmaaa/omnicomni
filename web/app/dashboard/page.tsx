@@ -55,7 +55,14 @@ export default function DashboardPage() {
             // Poll for status
             while (true) {
                 const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}/api/status/${jobId}`);
-                if (!statusRes.ok) break;
+
+                if (!statusRes.ok) {
+                    // If we get 404, the job might be lost (server restart)
+                    if (statusRes.status === 404) {
+                        throw new Error("Connection lost. Please try again.");
+                    }
+                    throw new Error("Failed to get status update");
+                }
 
                 const status = await statusRes.json();
 
