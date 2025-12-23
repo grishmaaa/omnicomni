@@ -307,63 +307,67 @@ async def delete_video(video_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Background task for video generation
+# In api_server.py
+
+# (Keep all your other code, just replace this one function)
+
 async def generate_video_task(job_id: str, user_id: int, request: GenerateRequest):
-    """Background task to generate video using CommercialPipeline"""
+    """
+    Background task to generate video using CommercialPipeline.
+    This version has EXTREMELY verbose logging to debug silent crashes.
+    """
+    print(f"✅✅✅ JOB {job_id}: Background task has been started by FastAPI.")
+    
     try:
-        jobs[job_id]["status"] = "processing"
-        jobs[job_id]["stage"] = "initializing"
-        jobs[job_id]["progress"] = 1
-        jobs[job_id]["message"] = "Initializing AI engine..."
-        print(f"DEBUG: Job {job_id} - Starting initialization")
+        # STEP 1: DYNAMICALLY IMPORT a critical dependency
+        print(f"   JOB {job_id}: STEP 1 - Attempting to import CommercialPipeline...")
+        from commercial.pipeline import CommercialPipeline
+        from commercial.config import config
+        print(f"   JOB {job_id}: STEP 1 - Import successful.")
+
+        # STEP 2: INITIALIZE the pipeline
+        print(f"   JOB {job_id}: STEP 2 - Attempting to initialize CommercialPipeline...")
+        pipeline = CommercialPipeline(
+            openai_api_key=config.OPENAI_API_KEY,
+            fal_api_key=config.FAL_API_KEY,
+            elevenlabs_api_key=config.ELEVENLABS_API_KEY
+        )
+        print(f"   JOB {job_id}: STEP 2 - Pipeline initialized successfully.")
+
+        # STEP 3: SET UP the progress callback
+        print(f"   JOB {job_id}: STEP 3 - Setting up progress callback...")
+        def on_progress(progress):
+            print(f"   PROGRESS {job_id}: [{progress.stage}] {progress.current}/{progress.total}")
+            jobs[job_id]["stage"] = progress.stage
+            jobs[job_id]["message"] = progress.message
+            stage_map = {"story": 0, "images": 20, "videos": 40, "voice": 70, "assembly": 90}
+            base_progress = stage_map.get(progress.stage, 0)
+            stage_progress = (progress.current / progress.total) if progress.total > 0 else 0
+            jobs[job_id]["progress"] = int(base_progress + (stage_progress * 20))
+
+        pipeline.set_progress_callback(on_progress)
+        print(f"   JOB {job_id}: STEP 3 - Callback set.")
+
+        # STEP 4: RUN the main generation logic
+        print(f"   JOB {job_id}: STEP 4 - Starting the main generate_video() process...")
+        result = pipeline.generate_video(
+            topic=request.topic,
+            style=request.style,
+            aspect_ratio=request.aspect_ratio
+        )
+        print(f"   JOB {job_id}: STEP 4 - Generation process finished without errors.")
         
-        try:
-            # Initialize CommercialPipeline
-            print(f"DEBUG: Job {job_id} - Importing pipeline")
-            from commercial.pipeline import CommercialPipeline
-            from commercial.config import config
-            
-            print(f"DEBUG: Job {job_id} - Instantiating pipeline")
-            pipeline = CommercialPipeline(
-                openai_api_key=config.OPENAI_API_KEY,
-                fal_api_key=config.FAL_API_KEY,
-                elevenlabs_api_key=config.ELEVENLABS_API_KEY
-            )
-            print(f"DEBUG: Job {job_id} - Pipeline ready")
-            
-            def on_progress(progress):
-                print(f"DEBUG: Job {job_id} - Progress: {progress.stage} {progress.current}/{progress.total}")
-                jobs[job_id]["stage"] = progress.stage
-                jobs[job_id]["message"] = progress.message
-                jobs[job_id]["progress"] = int((progress.current / progress.total) * 100)
-            
-            pipeline.set_progress_callback(on_progress)
-            
-            # Run generation
-            print(f"DEBUG: Job {job_id} - Calling generate_video")
-            result = pipeline.generate_video(
-                topic=request.topic,
-                style=request.style,
-                aspect_ratio=request.aspect_ratio
-            )
-        except Exception as e:
-            print(f"CRITICAL ERROR in BACKGROUND TASK: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            raise e
-        
-        # Construct web accessible URL (relative path)
-        # Result path: commercial/output/topic_name/final_video.mp4
-        # Web path: /videos/topic_name/final_video.mp4
+        # STEP 5: PROCESS the results
+        print(f"   JOB {job_id}: STEP 5 - Processing results and saving to DB...")
         final_path = Path(result['final_video'])
-        relative_path = final_path.relative_to("commercial/output")
-        web_url = f"/videos/{relative_path}".replace("\\", "/") # Ensure forward slashes
-        
-        # Save to database
-        video = save_video_metadata(
+        relative_path = final_path.relative_to(project_root / "commercial" / "output")
+        web_url = f"/videos/{relative_path}".replace("\\", "/")
+
+        video_meta = save_video_metadata(
             user_id=user_id,
             topic=request.topic,
             file_path=web_url,  
-            duration_seconds=result['duration_seconds'],
+            duration_seconds=int(result['duration_seconds']),
             metadata={
                 "style": request.style,
                 "aspect_ratio": request.aspect_ratio,
@@ -372,19 +376,27 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
             }
         )
         
-        # Increment usage
         increment_usage(user_id)
+        print(f"   JOB {job_id}: STEP 5 - Database updated.")
         
-        # Mark complete
+        # FINAL STEP: Mark job as complete
         jobs[job_id]["status"] = "completed"
         jobs[job_id]["progress"] = 100
-        jobs[job_id]["video_id"] = video['id']
+        jobs[job_id]["video_id"] = video_meta['id']
         jobs[job_id]["video_url"] = web_url
-        
+        print(f"✅✅✅ JOB {job_id}: Task COMPLETED successfully!")
+
     except Exception as e:
+        # This is now the most important part of the code. It will catch the crash.
+        print(f"❌❌❌ JOB {job_id}: FATAL ERROR in background task! ❌❌❌")
+        import traceback
+        error_details = traceback.format_exc()
+        print(error_details)
+        
+        # Update the job status so the frontend knows it failed
         jobs[job_id]["status"] = "failed"
-        jobs[job_id]["error"] = str(e)
-        print(f"Generation error: {e}")
+        jobs[job_id]["error"] = f"A critical error occurred on the server: {str(e)}"
+        jobs[job_id]["error_details"] = error_details # Add full traceback for debugging
 
 if __name__ == "__main__":
     import uvicorn

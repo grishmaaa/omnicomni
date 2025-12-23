@@ -20,7 +20,7 @@ export default function PoliciesLayout({
 
             <main className="pt-24 pb-12 px-6">
                 <div className="container mx-auto max-w-4xl">
-                    <div className="glass rounded-2xl p-8 md:p-12">
+                    <div className="bg-white/95 backdrop-blur-xl text-gray-900 rounded-2xl p-8 md:p-12 shadow-2xl">
                         {children}
                     </div>
                 </div>
