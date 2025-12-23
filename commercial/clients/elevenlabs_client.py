@@ -61,6 +61,8 @@ class ElevenLabsClient:
             return self.VOICE_PRESETS[voice.lower()]
         return voice
     
+# In commercial/clients/elevenlabs_client.py
+
     def generate_speech(
         self,
         text: str,
@@ -72,22 +74,7 @@ class ElevenLabsClient:
         use_speaker_boost: bool = True
     ) -> Path:
         """
-        Generate speech from text
-        
-        Args:
-            text: Text to synthesize
-            output_path: Path to save audio file
-            voice: Voice ID or preset (uses default if None)
-            stability: Voice stability (0-1, higher = more consistent)
-            similarity_boost: Voice similarity (0-1, higher = closer to original)
-            style: Style exaggeration (0-1, higher = more expressive)
-            use_speaker_boost: Enable speaker boost for clarity
-            
-        Returns:
-            Path to generated audio file
-            
-        Raises:
-            RuntimeError: If synthesis fails
+        Generate speech from text using the modern ElevenLabs SDK.
         """
         voice_id = self._resolve_voice(voice) if voice else self.default_voice
         
@@ -102,23 +89,22 @@ class ElevenLabsClient:
                 use_speaker_boost=use_speaker_boost
             )
             
-            # Generate audio
-            audio = self.client.generate(
+            # --- THIS IS THE CORRECTED CODE ---
+            # The new SDK uses client.text_to_speech.convert()
+            audio_stream = self.client.text_to_speech.convert(
+                voice_id=voice_id,
                 text=text,
-                voice=Voice(
-                    voice_id=voice_id,
-                    settings=voice_settings
-                ),
-                model="eleven_multilingual_v2"
+                model_id="eleven_multilingual_v2",
+                voice_settings=voice_settings,
             )
             
-            # Save to file
+            # Save the streamed audio to a file
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(output_path, 'wb') as f:
-                for chunk in audio:
+            with open(output_path, "wb") as f:
+                for chunk in audio_stream:
                     f.write(chunk)
-            
+            # --- END OF CORRECTION ---
+
             # Track character usage
             self.total_characters += len(text)
             
@@ -126,7 +112,7 @@ class ElevenLabsClient:
             return output_path
             
         except Exception as e:
-            logger.error(f"Speech generation failed: {e}")
+            logger.error(f"Speech generation failed: {e}", exc_info=True)
             raise RuntimeError(f"ElevenLabs synthesis failed: {e}")
     
     def generate_batch(
