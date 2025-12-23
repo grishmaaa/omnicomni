@@ -114,10 +114,22 @@ async def startup_event():
             """)
             conn.commit()
             print("✅ Mock User created")
+        
+        # Check if subscription exists for user 1
+        cur.execute("SELECT id FROM subscriptions WHERE user_id = 1")
+        if not cur.fetchone():
+            print("🔧 Creating Mock Subscription for User 1...")
+            cur.execute("""
+                INSERT INTO subscriptions (user_id, tier, status)
+                VALUES (1, 'free', 'active')
+            """)
+            conn.commit()
+            print("✅ Mock Subscription created")
+            
         cur.close()
         conn.close()
     except Exception as e:
-        print(f"⚠️ Mock user creation warning: {e}")
+        print(f"⚠️ Mock data creation warning: {e}")
 
 # Authentication endpoints
 @app.post("/api/auth/login")
