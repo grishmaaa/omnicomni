@@ -25,7 +25,7 @@ class CommercialConfig(BaseSettings):
     ELEVENLABS_API_KEY: str = Field(default="", description="ElevenLabs API key for voice")
     
     # Model Configuration
-    FLUX_MODEL: str = "fal-ai/flux-pro"
+    FLUX_MODEL: str = "fal-ai/stable-diffusion-xl-lightning"
     MINIMAX_MODEL: str = "fal-ai/minimax-video"
     ELEVENLABS_VOICE: str = "Rachel"  # Default voice
     
