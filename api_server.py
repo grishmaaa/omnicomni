@@ -233,6 +233,7 @@ async def generate_video(request: GenerateRequest, background_tasks: BackgroundT
             "status": "processing",
             "progress": 0,
             "stage": "initializing",
+            "message": "Request queued...",
             "created_at": datetime.now().isoformat(),
             "user_id": user_id,
             "request": request.dict()
