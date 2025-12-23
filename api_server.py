@@ -28,6 +28,10 @@ from commercial.subscription import (
 
 app = FastAPI(title="AI Video Generator API")
 
+@app.get("/")
+async def root():
+    return {"status": "online", "service": "Technov.ai Backend API", "version": "1.0.0"}
+
 # CORS middleware
 from fastapi.staticfiles import StaticFiles
 import os
