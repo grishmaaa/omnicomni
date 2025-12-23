@@ -272,9 +272,9 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
     try:
         jobs[job_id]["status"] = "processing"
         jobs[job_id]["stage"] = "initializing"
-        jobs[job_id]["progress"] = 10
+        jobs[job_id]["progress"] = 1
+        jobs[job_id]["message"] = "Starting generation engine..."
         
-        # TODO: Initialize CommercialPipeline
         # Initialize CommercialPipeline
         from commercial.pipeline import CommercialPipeline
         from commercial.config import config
