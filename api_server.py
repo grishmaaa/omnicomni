@@ -277,31 +277,43 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
         jobs[job_id]["status"] = "processing"
         jobs[job_id]["stage"] = "initializing"
         jobs[job_id]["progress"] = 1
-        jobs[job_id]["message"] = "Starting generation engine..."
+        jobs[job_id]["message"] = "Initializing AI engine..."
+        print(f"DEBUG: Job {job_id} - Starting initialization")
         
-        # Initialize CommercialPipeline
-        from commercial.pipeline import CommercialPipeline
-        from commercial.config import config
-        
-        pipeline = CommercialPipeline(
-            openai_api_key=config.OPENAI_API_KEY,
-            fal_api_key=config.FAL_API_KEY,
-            elevenlabs_api_key=config.ELEVENLABS_API_KEY
-        )
-        
-        def on_progress(progress):
-            jobs[job_id]["stage"] = progress.stage
-            jobs[job_id]["message"] = progress.message
-            jobs[job_id]["progress"] = int((progress.current / progress.total) * 100)
-        
-        pipeline.set_progress_callback(on_progress)
-        
-        # Run generation
-        result = pipeline.generate_video(
-            topic=request.topic,
-            style=request.style,
-            aspect_ratio=request.aspect_ratio
-        )
+        try:
+            # Initialize CommercialPipeline
+            print(f"DEBUG: Job {job_id} - Importing pipeline")
+            from commercial.pipeline import CommercialPipeline
+            from commercial.config import config
+            
+            print(f"DEBUG: Job {job_id} - Instantiating pipeline")
+            pipeline = CommercialPipeline(
+                openai_api_key=config.OPENAI_API_KEY,
+                fal_api_key=config.FAL_API_KEY,
+                elevenlabs_api_key=config.ELEVENLABS_API_KEY
+            )
+            print(f"DEBUG: Job {job_id} - Pipeline ready")
+            
+            def on_progress(progress):
+                print(f"DEBUG: Job {job_id} - Progress: {progress.stage} {progress.current}/{progress.total}")
+                jobs[job_id]["stage"] = progress.stage
+                jobs[job_id]["message"] = progress.message
+                jobs[job_id]["progress"] = int((progress.current / progress.total) * 100)
+            
+            pipeline.set_progress_callback(on_progress)
+            
+            # Run generation
+            print(f"DEBUG: Job {job_id} - Calling generate_video")
+            result = pipeline.generate_video(
+                topic=request.topic,
+                style=request.style,
+                aspect_ratio=request.aspect_ratio
+            )
+        except Exception as e:
+            print(f"CRITICAL ERROR in BACKGROUND TASK: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise e
         
         # Construct web accessible URL (relative path)
         # Result path: commercial/output/topic_name/final_video.mp4
