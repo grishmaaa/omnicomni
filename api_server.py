@@ -1,5 +1,5 @@
 #
-# api_server.py (Complete File)
+# api_server.py (Complete file with the FIX)
 #
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,8 +33,6 @@ output_dir = project_root / "commercial" / "output"
 output_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/videos", StaticFiles(directory=output_dir), name="videos")
 
-# --- Database & Auth Imports (moved inside functions to avoid startup errors) ---
-
 # --- Pydantic Models ---
 class GenerateRequest(BaseModel):
     topic: str
@@ -52,15 +50,18 @@ class SignupRequest(BaseModel):
     name: str
     plan: str = "free"
 
-# --- Background Task (ULTRA-ROBUST LOGGING) ---
+# --- Background Task (with CORRECTED IMPORT) ---
 async def generate_video_task(job_id: str, user_id: int, request: GenerateRequest):
-    print(f"✅✅✅ JOB {job_id}: Background task function has been entered by FastAPI.")
+    print(f"✅✅✅ JOB {job_id}: Background task has been entered by FastAPI.")
     try:
         # Import everything INSIDE the try block to catch import errors
         print(f"   JOB {job_id}: STEP 1 - Importing dependencies...")
         from commercial.pipeline import CommercialPipeline
         from commercial.config import config
-        from commercial.database import save_video_metadata, increment_usage
+        # --- THIS IS THE FIX ---
+        from commercial.database import save_video_metadata
+        from commercial.subscription import increment_usage # <-- MOVED FROM database.py TO subscription.py
+        # ----------------------
         print(f"   JOB {job_id}: STEP 1 - Imports successful.")
 
         # Initialize pipeline
@@ -174,17 +175,9 @@ async def signup(request: SignupRequest):
 @app.post("/api/generate")
 async def generate_video_endpoint(request: GenerateRequest, background_tasks: BackgroundTasks):
     print("INFO:     Received POST request for /api/generate")
-    # TODO: Get user from a real session/token
     user_id = 1  # Hardcoded for now
     
     try:
-        from commercial.subscription import can_generate_video
-        
-        # Check usage limits
-        # can_generate, message = can_generate_video(user_id, 'pro') # Mocking pro for now
-        # if not can_generate:
-        #     raise HTTPException(status_code=403, detail=message)
-        
         job_id = str(uuid.uuid4())
         jobs[job_id] = {"status": "queued", "progress": 0, "stage": "queued", "message": "Request accepted..."}
         
@@ -192,11 +185,8 @@ async def generate_video_endpoint(request: GenerateRequest, background_tasks: Ba
         background_tasks.add_task(generate_video_task, job_id, user_id, request)
         print(f"   - Job {job_id} has been successfully handed off to background worker.")
         
-        # Immediately return the job_id
         return {"success": True, "job_id": job_id, "message": "Video generation started"}
         
-    except HTTPException:
-        raise
     except Exception as e:
         print(f"ERROR:     Failed to queue generation task: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to start generation: {e}")
