@@ -1,16 +1,16 @@
 # FastAPI Backend
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
 
 # Database & Auth
-psycopg2-binary==2.9.9
+psycopg2-binary>=2.9.9
 supabase>=2.0.0
 
 # Core
-python-dotenv==1.0.0
-pydantic==2.5.3
+python-dotenv>=1.0.0
+pydantic>=2.5.3
 pydantic-settings>=2.0.0
-requests==2.31.0
+requests>=2.31.0
 
 # Keep these for video generation
 Pillow>=10.0.0
