@@ -16,6 +16,15 @@ from fastapi.staticfiles import StaticFiles
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
+from commercial.database import (
+    init_db, create_user, get_user_by_uid,
+    save_video_metadata, get_user_videos, update_last_login
+)
+from commercial.subscription import (
+    get_user_subscription, can_generate_video, increment_usage,
+    create_subscription
+)
+
 app = FastAPI(title="AI Video Generator API")
 jobs = {}
 
