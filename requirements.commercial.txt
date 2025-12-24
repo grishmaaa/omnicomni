@@ -21,4 +21,4 @@ plotly>=5.17.0
 
 # Utilities
 tqdm>=4.66.0
-moviepy>=1.0.3
+# moviepy>=1.0.3
