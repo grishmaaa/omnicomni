@@ -2,7 +2,7 @@
 Enhanced FastAPI Backend with Database Integration
 Connects Next.js frontend to PostgreSQL database and CommercialPipeline
 """
-print("🚀 STARTING BACKEND VERSION 2.0 - FIX CONFIRMED")
+print("🚀 STARTING BACKEND VERSION 3.0 - ITERATIVE RENDERER")
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends
 from fastapi.middleware.cors import CORSMiddleware
