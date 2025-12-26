@@ -360,8 +360,15 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
         
         # STEP 5: PROCESS the results
         print(f"   JOB {job_id}: STEP 5 - Processing results and saving to DB...")
-        final_path = Path(result['final_video'])
-        relative_path = final_path.relative_to(project_root / "commercial" / "output")
+        final_path = Path(result['final_video']).resolve()
+        base_output_dir = (project_root / "commercial" / "output").resolve()
+        
+        try:
+            relative_path = final_path.relative_to(base_output_dir)
+        except ValueError:
+            # Fallback for safety: just grab folder/filename
+            relative_path = Path(final_path.parent.name) / final_path.name
+            
         web_url = f"/videos/{relative_path}".replace("\\", "/")
 
         video_meta = save_video_metadata(
