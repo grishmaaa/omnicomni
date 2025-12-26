@@ -1,8 +1,3 @@
-code
-Code
-download
-content_copy
-expand_less
 """
 Enhanced FastAPI Backend with Database Integration
 Connects Next.js frontend to PostgreSQL database and CommercialPipeline
