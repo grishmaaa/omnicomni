@@ -12,6 +12,7 @@ export default function DashboardPage() {
     const [progress, setProgress] = useState(0);
     const [currentStage, setCurrentStage] = useState("");
     const [currentMessage, setCurrentMessage] = useState("");
+    const [lastVideoUrl, setLastVideoUrl] = useState<string | null>(null);
 
     const styles = [
         { id: "cinematic", name: "Cinematic", emoji: "🎬" },
@@ -73,9 +74,7 @@ export default function DashboardPage() {
                 if (status.status === 'completed') {
                     setGenerating(false);
                     setCurrentStage("Complete! 🎉");
-                    // Redirect or show video
-                    // For now, let's just alert success until we have a player page
-                    alert(`Video generated! URL: ${status.video_url}`);
+                    setLastVideoUrl(status.video_url); // Save URL to state
                     break;
                 } else if (status.status === 'failed') {
                     throw new Error(status.error || 'Generation failed');
@@ -244,6 +243,48 @@ export default function DashboardPage() {
                                     <p className="text-gray-400 text-sm animate-pulse">
                                         👉 {currentMessage || "Contacting AI servers..."}
                                     </p>
+                                </div>
+                            )}
+
+                            {/* Result Video Player */}
+                            {lastVideoUrl && !generating && (
+                                <div className="glass rounded-2xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                    <h3 className="text-white font-bold text-2xl mb-6 flex items-center gap-3">
+                                        🎉 Your Video is Ready!
+                                    </h3>
+
+                                    <div className="relative rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black aspect-video mb-6">
+                                        <video
+                                            controls
+                                            autoPlay
+                                            className="w-full h-full object-contain"
+                                            src={`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}${lastVideoUrl}`}
+                                        />
+                                    </div>
+
+                                    <div className="flex gap-4">
+                                        <a
+                                            href={`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}${lastVideoUrl}`}
+                                            download={`technov_video_${Date.now()}.mp4`}
+                                            className="flex-1 btn-primary py-4 rounded-xl font-bold text-center flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                            Download Video
+                                        </a>
+                                        <button
+                                            onClick={() => {
+                                                setLastVideoUrl(null);
+                                                setTopic("");
+                                            }}
+                                            className="px-6 py-4 rounded-xl font-semibold bg-white/5 hover:bg-white/10 text-white transition-colors border border-white/10"
+                                        >
+                                            Create Another
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
