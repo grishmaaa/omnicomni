@@ -264,8 +264,8 @@ export default function DashboardPage() {
 
                                     <div className="flex gap-4">
                                         <a
-                                            href={`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}${lastVideoUrl}`}
-                                            download={`technov_video_${Date.now()}.mp4`}
+                                            href={`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}/api/download?file_path=${lastVideoUrl}`}
+                                            download
                                             className="flex-1 btn-primary py-4 rounded-xl font-bold text-center flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform"
                                             target="_blank"
                                             rel="noopener noreferrer"

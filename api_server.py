@@ -221,6 +221,30 @@ async def signup(request: SignupRequest):
         print(f"Signup error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.get("/api/download")
+async def download_video(file_path: str):
+    """
+    Force download of a video file.
+    Usage: /api/download?file_path=/videos/Commercial/output/my_video.mp4
+    """
+    # Security: Ensure we only serve from the output directory
+    clean_path = file_path.replace("/videos/", "").lstrip("/")
+    safe_path = (project_root / "commercial" / "output" / clean_path).resolve()
+    base_dir = (project_root / "commercial" / "output").resolve()
+    
+    if not str(safe_path).startswith(str(base_dir)):
+        raise HTTPException(status_code=403, detail="Access denied")
+        
+    if not safe_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    from fastapi.responses import FileResponse
+    return FileResponse(
+        path=safe_path,
+        filename=safe_path.name,
+        media_type="application/octet-stream" # Forces download in all browsers
+    )
+
 # Video generation endpoints
 @app.post("/api/generate")
 async def generate_video(request: GenerateRequest, background_tasks: BackgroundTasks):
