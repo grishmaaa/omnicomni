@@ -223,26 +223,29 @@ async def signup(request: SignupRequest):
 
 @app.get("/api/download")
 async def download_video(file_path: str):
-    """
-    Force download of a video file.
-    Usage: /api/download?file_path=/videos/Commercial/output/my_video.mp4
-    """
+    print(f"📥 DOWNLOAD REQUEST: {file_path}")
+    
     # Security: Ensure we only serve from the output directory
     clean_path = file_path.replace("/videos/", "").lstrip("/")
     safe_path = (project_root / "commercial" / "output" / clean_path).resolve()
     base_dir = (project_root / "commercial" / "output").resolve()
     
+    print(f"   Mapped to: {safe_path}")
+    
     if not str(safe_path).startswith(str(base_dir)):
+        print(f"❌ Access Denied: {safe_path} not in {base_dir}")
         raise HTTPException(status_code=403, detail="Access denied")
         
     if not safe_path.exists():
+        print(f"❌ File Not Found: {safe_path}")
         raise HTTPException(status_code=404, detail="File not found")
 
+    print("✅ Serving file...")
     from fastapi.responses import FileResponse
     return FileResponse(
         path=safe_path,
         filename=safe_path.name,
-        media_type="application/octet-stream" # Forces download in all browsers
+        media_type="application/octet-stream" 
     )
 
 # Video generation endpoints

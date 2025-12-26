@@ -267,8 +267,6 @@ export default function DashboardPage() {
                                             href={`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}/api/download?file_path=${lastVideoUrl}`}
                                             download
                                             className="flex-1 btn-primary py-4 rounded-xl font-bold text-center flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                         >
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
