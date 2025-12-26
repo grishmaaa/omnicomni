@@ -399,7 +399,4 @@ async def generate_video_task(job_id: str, user_id: int, request: GenerateReques
         jobs[job_id]["error_details"] = error_details # Add full traceback for debugging
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-# this was the actual code i just replaced one function with what you said

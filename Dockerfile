@@ -2,7 +2,11 @@
 FROM python:3.11-slim
 
 # Set working directory
+# Set working directory
 WORKDIR /app
+
+# Ensure logs are flushed immediately
+ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
