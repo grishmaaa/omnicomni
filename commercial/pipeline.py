@@ -264,6 +264,15 @@ class CommercialPipeline:
         gc.collect() # Free up memory before heavy operation
         
         try:
+            # Log memory before starting
+            try:
+                with open('/proc/meminfo', 'r') as f:
+                    meminfo = f.read()
+                    available_kb = int([x for x in meminfo.splitlines() if 'MemAvailable' in x][0].split()[1])
+                    logger.info(f"💾 Memory check before assembly: {available_kb/1024:.2f} MB available")
+            except:
+                logger.info("Could not read memory stats (not on Linux?)")
+
             clips = []
             
             for video_path, audio_path in zip(video_paths, audio_paths):
