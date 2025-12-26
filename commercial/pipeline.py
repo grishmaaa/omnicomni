@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Optional, List, Dict
 from dataclasses import dataclass
 import time
+import gc
 
 from commercial.clients.openai_client import OpenAIClient, StoryResponse
 from .clients.fal_client import FalClient
@@ -260,6 +261,7 @@ class CommercialPipeline:
         from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
         
         logger.info("Assembling final video with MoviePy...")
+        gc.collect() # Free up memory before heavy operation
         
         try:
             clips = []
@@ -285,13 +287,15 @@ class CommercialPipeline:
             # Concatenate all clips
             final = concatenate_videoclips(clips, method="compose")
             
-            # Write final video
+            # Write final video - Optimized for Low Memory (Railway)
             final.write_videofile(
                 str(output_path),
                 codec="libx264",
                 audio_codec="aac",
                 fps=24,
-                preset="medium"
+                preset="veryfast",  # Faster encoding, slightly larger file, less RAM
+                threads=1,          # CRITICAL: Forces sequential processing to prevent OOM
+                audio_bitrate="128k"
             )
             
             # Cleanup
