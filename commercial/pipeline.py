@@ -273,9 +273,12 @@ class CommercialPipeline:
             except:
                 logger.info("Could not read memory stats (not on Linux?)")
 
-            clips = []
+            processed_clips = []
             
-            for video_path, audio_path in zip(video_paths, audio_paths):
+            # Step 1: Process each clip individually and save to disk
+            for i, (video_path, audio_path) in enumerate(zip(video_paths, audio_paths)):
+                logger.info(f"Processing clip {i+1}...")
+                
                 # Load video and audio
                 video = VideoFileClip(str(video_path))
                 audio = AudioFileClip(str(audio_path))
@@ -291,26 +294,52 @@ class CommercialPipeline:
                     # Trim video to match audio
                     video = video.subclip(0, audio.duration)
                 
-                clips.append(video)
+                # Render this specific clip immediately to release RAM
+                temp_output = output_path.parent / f"temp_processed_{i}.mp4"
+                video.write_videofile(
+                    str(temp_output),
+                    codec="libx264",
+                    audio_codec="aac",
+                    fps=24,
+                    preset="veryfast",
+                    threads=1,
+                    audio_bitrate="128k",
+                    logger=None # Reduce log noise
+                )
+                
+                # Explicit cleanup
+                video.close()
+                audio.close()
+                del video
+                del audio
+                gc.collect()
+                
+                processed_clips.append(temp_output)
+
+            # Step 2: Concatenate processed files using ffmpeg direct stream copy
+            logger.info("Merging clips with FFMPEG...")
             
-            # Concatenate all clips
-            final = concatenate_videoclips(clips, method="compose")
+            # Create input file for ffmpeg
+            list_file = output_path.parent / "input_list.txt"
+            with open(list_file, "w") as f:
+                for clip in processed_clips:
+                    f.write(f"file '{clip.name}'\n")
+
+            # Run ffmpeg concat (minimal memory usage)
+            import subprocess
+            cmd = [
+                "ffmpeg", "-y", "-f", "concat", "-safe", "0",
+                "-i", str(list_file),
+                "-c", "copy",
+                str(output_path)
+            ]
             
-            # Write final video - Optimized for Low Memory (Railway)
-            final.write_videofile(
-                str(output_path),
-                codec="libx264",
-                audio_codec="aac",
-                fps=24,
-                preset="veryfast",  # Faster encoding, slightly larger file, less RAM
-                threads=1,          # CRITICAL: Forces sequential processing to prevent OOM
-                audio_bitrate="128k"
-            )
+            subprocess.run(cmd, check=True)
             
-            # Cleanup
-            for clip in clips:
-                clip.close()
-            final.close()
+            # Cleanup temp files
+            for clip in processed_clips:
+                clip.unlink(missing_ok=True)
+            list_file.unlink(missing_ok=True)
             
             logger.info(f"✅ Final video saved: {output_path}")
             return output_path
