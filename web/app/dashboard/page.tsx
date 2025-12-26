@@ -262,11 +262,11 @@ export default function DashboardPage() {
                                         />
                                     </div>
 
-                                    <div className="flex gap-4">
+                                    <div className="flex gap-4 relative z-50">
                                         <a
                                             href={`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}/api/download?file_path=${lastVideoUrl}`}
                                             download
-                                            className="flex-1 btn-primary py-4 rounded-xl font-bold text-center flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform"
+                                            className="flex-1 btn-primary py-4 rounded-xl font-bold text-center flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform cursor-pointer"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
@@ -280,10 +280,23 @@ export default function DashboardPage() {
                                                 setLastVideoUrl(null);
                                                 setTopic("");
                                             }}
-                                            className="px-6 py-4 rounded-xl font-semibold bg-white/5 hover:bg-white/10 text-white transition-colors border border-white/10"
+                                            className="px-6 py-4 rounded-xl font-semibold bg-white/5 hover:bg-white/10 text-white transition-colors border border-white/10 cursor-pointer"
                                         >
                                             Create Another
                                         </button>
+                                    </div>
+
+                                    {/* Debugging Link - Remove after fix */}
+                                    <div className="mt-4 p-4 bg-black/50 rounded-lg text-xs font-mono text-gray-400 break-all">
+                                        <p className="mb-2 text-yellow-400">⚠️ Debugging Area</p>
+                                        <p>Video URL: {lastVideoUrl}</p>
+                                        <a
+                                            href={`${process.env.NEXT_PUBLIC_API_URL || 'https://web-production-f1795.up.railway.app'}/api/download?file_path=${lastVideoUrl}`}
+                                            target="_blank"
+                                            className="text-blue-400 underline mt-2 block"
+                                        >
+                                            [Generic HTML Link] Click this if the big button fails
+                                        </a>
                                     </div>
                                 </div>
                             )}
