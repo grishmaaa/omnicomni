@@ -227,6 +227,10 @@ async def download_video(file_path: str):
     
     # Security: Ensure we only serve from the output directory
     clean_path = file_path.replace("/videos/", "").lstrip("/")
+    
+    # Defensive fix: remove redundant path segments if they made it into the URL
+    clean_path = clean_path.replace("commercial/output/", "").replace("commercial\\output\\", "")
+    
     safe_path = (project_root / "commercial" / "output" / clean_path).resolve()
     base_dir = (project_root / "commercial" / "output").resolve()
     
